@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0b0d10;
+  --foreground: #ffffff;
+  --paper: #0b0d10;
+  --ink: #111418;
+
+  /* Brand colors inspired by Ticketmaster */
+  --brand-50: #f2fbfb;
+  --brand-100: #d2f4f1;
+  --brand-200: #a7e7e0;
+  --brand-300: #70d4c9;
+  --brand-400: #33b8aa;
+  --brand-500: #0b998c;
+  --brand-600: #077a70;
+  --brand-700: #065f59;
+  --brand-800: #054c47;
+  --brand-900: #043f3b;
+
+  /* Ticketmaster blue */
+  --primary: #026cdf;
+  --primary-dark: #0052b3;
+  --primary-light: #4285f4;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+
+  /* Brand palette */
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+
+  /* Primary colors */
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-light: var(--primary-light);
+
+  /* Typography - Apple Music Style */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+
+  /* Border radius */
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+
+  /* Shadows */
+  --shadow-soft: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+body {
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: 'rlig' 1, 'calt' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.luxurious-script-regular {
+  font-family: var(--font-luxurious-script), cursive;
+  font-weight: 400;
+  font-style: normal;
+}
