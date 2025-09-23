@@ -1,0 +1,16 @@
+{
+  "name": "giveback-ticketing-platform",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd ticketing-concept && npm run dev",
+    "build": "cd ticketing-concept && npm run build",
+    "start": "cd ticketing-concept && npm run start",
+    "lint": "cd ticketing-concept && npm run lint",
+    "vercel-build": "cd ticketing-concept && npm install && npm run build",
+    "db:up": "cd ticketing-concept && npm run db:up",
+    "db:seed": "cd ticketing-concept && npm run db:seed"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
