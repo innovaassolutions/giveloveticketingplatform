@@ -1,0 +1,11 @@
+import { Surreal } from 'surrealdb';
+const db = new Surreal();
+await db.connect('http://127.0.0.1:8000/rpc');
+await db.signin({ username: 'root', password: 'root' });
+await db.use({ ns: 'demo', db: 'organiser_1' });
+const fs = await import('node:fs/promises');
+const sql = await fs.readFile('./db/schema.surql', 'utf8');
+await db.query(sql);
+console.log('SurrealDB seeded.');
+await db.close();
+process.exit(0);
