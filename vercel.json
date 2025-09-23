@@ -1,7 +1,5 @@
 {
-  "buildCommand": "cd ticketing-concept && npm install && npm run build",
-  "devCommand": "cd ticketing-concept && npm run dev",
-  "installCommand": "cd ticketing-concept && npm install",
-  "framework": "nextjs",
-  "rootDirectory": "ticketing-concept"
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "nextjs"
 }
