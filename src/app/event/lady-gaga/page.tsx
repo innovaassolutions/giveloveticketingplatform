@@ -167,8 +167,8 @@ export default function LadyGagaEventPage() {
       const result = await response.json();
 
       if (result.success) {
-        // Redirect to confirmation page
-        router.push('/checkout/confirmation');
+        // Redirect to confirmation page with artist parameter
+        router.push('/checkout/confirmation?artist=lady-gaga&event=one-night-in-kl');
       } else {
         alert(`Checkout failed: ${result.error}`);
       }

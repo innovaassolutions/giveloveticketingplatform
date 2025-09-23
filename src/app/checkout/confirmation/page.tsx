@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { CheckCircle, Download, Receipt, Heart, ArrowLeft } from 'lucide-react';
 import { usePricing } from '../../../contexts/PricingContext';
 import { useMerchandise, CartItem } from '../../../contexts/MerchandiseContext';
@@ -32,20 +33,76 @@ interface OrderData {
   charityName: string;
 }
 
-export default function CheckoutConfirmation() {
+function CheckoutConfirmationContent() {
   const { getArtistPricing } = usePricing();
+  const searchParams = useSearchParams();
   const [orderData, setOrderData] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Artist-specific data mapping
+  const artistData = {
+      'lady-gaga': {
+        artistName: 'Lady Gaga',
+        eventTitle: 'One Night in KL',
+        charityName: 'Mental Health Foundation',
+        venue: 'KLCC Arena, Kuala Lumpur',
+        date: '2025-12-15',
+        charityImpact: {
+          therapy: 50,
+          support: 25,
+          resources: 200
+        }
+      },
+      'taylor-swift': {
+        artistName: 'Taylor Swift',
+        eventTitle: 'The Eras Tour',
+        charityName: 'Education Foundation',
+        venue: 'MetLife Stadium, New Jersey',
+        date: '2025-10-12',
+        charityImpact: {
+          therapy: 75,
+          support: 35,
+          resources: 150
+        }
+      },
+      'garth-brooks': {
+        artistName: 'Garth Brooks',
+        eventTitle: 'Friends in Low Places Tour',
+        charityName: 'Rural Community Support',
+        venue: 'Madison Square Garden, New York',
+        date: '2025-11-20',
+        charityImpact: {
+          therapy: 60,
+          support: 30,
+          resources: 180
+        }
+      },
+      'dolly-parton': {
+        artistName: 'Dolly Parton',
+        eventTitle: 'Pure & Simple Tour',
+        charityName: 'Literacy Foundation',
+        venue: 'Grand Ole Opry, Nashville',
+        date: '2025-09-28',
+        charityImpact: {
+          therapy: 45,
+          support: 20,
+          resources: 250
+        }
+      }
+    };
+
   useEffect(() => {
-    // Simulate loading order data from URL params or localStorage
+    // Get order data from URL params using Next.js searchParams
+    const artistSlug = searchParams.get('artist') || 'lady-gaga';
+    const currentArtist = artistData[artistSlug as keyof typeof artistData] || artistData['lady-gaga'];
+
     setTimeout(() => {
       // Mock order data - in real app this would come from URL params or API
       const mockOrder: OrderData = {
         id: 'ORD-' + Date.now(),
-        artistSlug: 'lady-gaga',
-        artistName: 'Lady Gaga',
-        eventTitle: 'One Night in KL',
+        artistSlug: artistSlug,
+        artistName: currentArtist.artistName,
+        eventTitle: currentArtist.eventTitle,
         items: [
           {
             ticketTypeId: 'ga',
@@ -62,12 +119,12 @@ export default function CheckoutConfirmation() {
         merchandiseTotal: 0,
         customerEmail: 'fan@example.com',
         orderDate: new Date().toISOString(),
-        charityName: 'Mental Health Foundation',
+        charityName: currentArtist.charityName,
       };
       setOrderData(mockOrder);
       setLoading(false);
     }, 1000);
-  }, []);
+  }, [searchParams, artistData]);
 
   const downloadTaxReceipt = () => {
     if (!orderData) return;
@@ -324,15 +381,15 @@ Thank you for supporting ${orderData.charityName}!
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 text-white/80">
                     <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                    <span>{Math.round(orderData.totalCharityAmount / 50)} therapy sessions</span>
+                    <span>{Math.round(orderData.totalCharityAmount / (artistData[orderData.artistSlug as keyof typeof artistData]?.charityImpact.therapy || 50))} therapy sessions</span>
                   </div>
                   <div className="flex items-center gap-3 text-white/80">
                     <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                    <span>{Math.round(orderData.totalCharityAmount / 25)} support group meetings</span>
+                    <span>{Math.round(orderData.totalCharityAmount / (artistData[orderData.artistSlug as keyof typeof artistData]?.charityImpact.support || 25))} support group meetings</span>
                   </div>
                   <div className="flex items-center gap-3 text-white/80">
                     <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                    <span>{Math.round(orderData.totalCharityAmount / 200)} mental health resources</span>
+                    <span>{Math.round(orderData.totalCharityAmount / (artistData[orderData.artistSlug as keyof typeof artistData]?.charityImpact.resources || 200))} mental health resources</span>
                   </div>
                 </div>
               </div>
@@ -393,7 +450,7 @@ Thank you for supporting ${orderData.charityName}!
 
           <div className="mt-6">
             <Link
-              href="/artist/lady-gaga"
+              href={`/artist/${orderData.artistSlug}`}
               className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg transition-colors"
             >
               View Artist Portal
@@ -402,5 +459,17 @@ Thank you for supporting ${orderData.charityName}!
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutConfirmation() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-red-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading confirmation...</div>
+      </div>
+    }>
+      <CheckoutConfirmationContent />
+    </Suspense>
   );
 }

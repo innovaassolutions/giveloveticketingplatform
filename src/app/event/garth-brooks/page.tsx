@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, MapPin, Calendar, Clock, Users } from 'lucide-react';
 import SeatMap from '@/components/seating/SeatMap';
 import { usePricing } from '../../../contexts/PricingContext';
@@ -33,6 +34,7 @@ interface CartItem {
 }
 
 export default function GarthBrooksEventPage() {
+  const router = useRouter();
   const { getArtistPricing } = usePricing();
   const artistSlug = 'garth-brooks';
   const pricing = getArtistPricing(artistSlug);
@@ -41,8 +43,6 @@ export default function GarthBrooksEventPage() {
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [orderComplete, setOrderComplete] = useState(false);
-  const [orderData, setOrderData] = useState<any>(null);
 
   // Mock event data for Garth Brooks
   useEffect(() => {
@@ -140,10 +140,8 @@ export default function GarthBrooksEventPage() {
       const result = await response.json();
 
       if (result.success) {
-        setOrderData(result.order);
-        setOrderComplete(true);
-        setCart([]);
-        setSelectedSeats([]);
+        // Redirect to confirmation page with artist parameter
+        router.push('/checkout/confirmation?artist=garth-brooks&event=friends-in-low-places');
       } else {
         alert(`Checkout failed: ${result.error}`);
       }
@@ -179,98 +177,6 @@ export default function GarthBrooksEventPage() {
     );
   }
 
-  // Order Complete Screen
-  if (orderComplete && orderData) {
-    return (
-      <div className="min-h-screen bg-background text-foreground">
-        <header className="border-b border-gray-800">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Home
-            </Link>
-          </div>
-        </header>
-
-        <div className="max-w-4xl mx-auto px-6 py-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-8"
-          >
-            <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h1 className="text-4xl font-bold text-green-400 mb-2">Order Confirmed!</h1>
-            <p className="text-xl text-gray-300">Your tickets have been successfully purchased</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-gray-900 rounded-xl p-6 mb-6"
-          >
-            <h2 className="text-2xl font-bold mb-4">Order Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-semibold text-gray-300 mb-2">Order ID</h3>
-                <p className="text-white font-mono">{orderData.id}</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-300 mb-2">Event</h3>
-                <p className="text-white">{eventData.artist} - {eventData.title}</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-300 mb-2">Customer</h3>
-                <p className="text-white">{orderData.customerInfo.name}</p>
-                <p className="text-gray-400">{orderData.customerInfo.email}</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-300 mb-2">Total Paid</h3>
-                <p className="text-2xl font-bold text-primary">${orderData.total.toFixed(2)}</p>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-gray-900 rounded-xl p-6"
-          >
-            <h2 className="text-2xl font-bold mb-4">Your Tickets</h2>
-            <div className="space-y-4">
-              {orderData.tickets.map((ticket: any, index: number) => (
-                <div key={ticket.id} className="border border-gray-700 rounded-lg p-4 flex justify-between items-center">
-                  <div>
-                    <h3 className="font-semibold">{ticket.ticketType}</h3>
-                    {ticket.seat && <p className="text-gray-400">Seat: {ticket.seat}</p>}
-                    <p className="text-sm text-gray-500 font-mono">{ticket.id}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="w-16 h-16 bg-white rounded border-2 border-gray-300 flex items-center justify-center">
-                      <span className="text-xs text-black font-mono">QR</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
-              <p className="text-blue-300 text-sm">
-                📧 A confirmation email with your tickets has been sent to {orderData.customerInfo.email}
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
