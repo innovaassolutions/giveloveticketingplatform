@@ -1,5 +1,5 @@
 import { db } from './db';
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient } from '@prisma/client';
 
 interface CustomerPersona {
   name: string;
@@ -104,7 +104,7 @@ export class BuyingSimulator {
       select: { id: true }
     });
 
-    return createdCustomers.map(c => c.id);
+    return createdCustomers.map((c: { id: string }) => c.id);
   }
 
   /**
