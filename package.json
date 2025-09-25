@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "prisma generate && next build --turbopack",
     "start": "next start",
     "lint": "eslint",
+    "postinstall": "prisma generate",
     "db:up": "docker compose up -d surrealdb",
     "db:seed": "node scripts/seed.mjs",
     "e2e": "playwright test",
