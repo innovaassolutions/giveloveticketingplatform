@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ColorPanels } from '@paper-design/shaders-react';
-import { Menu, X, ChevronDown, Apple, Droplets, BookOpen, Home as HomeIcon, Mic } from 'lucide-react';
+import { Menu, X, ChevronDown, Apple, Droplets, BookOpen, Home as HomeIcon, Mic, Users, Shield, Heart } from 'lucide-react';
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -44,6 +45,18 @@ export default function Home() {
     <div className="min-h-screen text-foreground flex flex-col relative overflow-hidden">
       {/* Header with Navigation */}
       <header className="relative z-50 p-6">
+        {/* Logo - Top Left */}
+        <div className="absolute top-6 left-6 z-50">
+          <Image
+            src="/images/GiveLoveLogo.png"
+            alt="GiveLove Logo"
+            width={600}
+            height={200}
+            className="w-auto h-36"
+            priority
+          />
+        </div>
+
         {/* Desktop Navigation - Individual Glass Buttons */}
         <div className="hidden md:flex justify-center items-center space-x-8">
           {/* Tickets Dropdown */}
@@ -166,6 +179,13 @@ export default function Home() {
                     {/* General Admin Section */}
                     <div>
                       <p className="text-white/60 text-xs uppercase tracking-wider px-4 py-1 font-medium">General Admin</p>
+                      <Link
+                        href="/admin"
+                        className="block px-4 py-2 text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+                        onClick={() => setAdminDropdownOpen(false)}
+                      >
+                        Platform Admin
+                      </Link>
                       <Link
                         href="/charity"
                         className="block px-4 py-2 text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
@@ -356,41 +376,56 @@ export default function Home() {
               </p>
             </motion.div>
 
-            {/* Three Column Section */}
+            {/* Three Horizontal Cards Section */}
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 1.0 }}
-              className="grid md:grid-cols-3 gap-8 md:gap-6 lg:gap-8 max-w-6xl mx-auto"
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto"
             >
-              {/* Fans Column */}
-              <div className="text-center">
-                <h3 className="text-2xl md:text-3xl font-semibold text-white mb-4 tracking-tight">
-                  Fans
-                </h3>
-                <p className="text-lg md:text-xl font-light text-white/80 leading-relaxed">
-                  Late decisions to buy last minute tickets
-                </p>
+              {/* Fans Card */}
+              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 hover:border-white/20 hover:shadow-2xl hover:shadow-white/5">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Users className="w-8 h-8 text-blue-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-3 tracking-tight">
+                    Fans
+                  </h3>
+                  <p className="text-base text-white/80 leading-relaxed">
+                    Fair Access to High Demand Tickets
+                  </p>
+                </div>
               </div>
 
-              {/* Second Market Column */}
-              <div className="text-center">
-                <h3 className="text-2xl md:text-3xl font-semibold text-white mb-4 tracking-tight">
-                  Second Market
-                </h3>
-                <p className="text-lg md:text-xl font-light text-white/80 leading-relaxed">
-                  Fills demand with face value uplift
-                </p>
+              {/* FairGuard Card */}
+              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 hover:border-white/20 hover:shadow-2xl hover:shadow-white/5">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Shield className="w-8 h-8 text-green-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-3 tracking-tight">
+                    FairGuard
+                  </h3>
+                  <p className="text-base text-white/80 leading-relaxed">
+                    Anti-bot, Uplift Ceilings, Traceability & Verification
+                  </p>
+                </div>
               </div>
 
-              {/* Charity Column */}
-              <div className="text-center">
-                <h3 className="text-2xl md:text-3xl font-semibold text-white mb-4 tracking-tight">
-                  Uplift
-                </h3>
-                <p className="text-lg md:text-xl font-light text-white/80 leading-relaxed">
-                  Goes to charities to help those in need
-                </p>
+              {/* Uplift Card */}
+              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 hover:border-white/20 hover:shadow-2xl hover:shadow-white/5">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-pink-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Heart className="w-8 h-8 text-pink-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-3 tracking-tight">
+                    Uplift
+                  </h3>
+                  <p className="text-base text-white/80 leading-relaxed">
+                    Supporting the charities you care most about
+                  </p>
+                </div>
               </div>
             </motion.div>
 
@@ -616,7 +651,7 @@ export default function Home() {
                           </div>
                           <p className="text-white font-medium text-sm">Feed the Children</p>
                           <p className="text-white/60 text-xs">Hunger Relief</p>
-                          <p className="text-white/50 text-xs mt-2 italic">*Charitable Tax Receipt Provided</p>
+                          <p className="text-white text-xs mt-2 italic font-bold">*Charitable Tax Receipt Provided</p>
                         </div>
                         <div className="bg-white/5 rounded-xl p-4 text-center border border-white/10">
                           <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -624,7 +659,7 @@ export default function Home() {
                           </div>
                           <p className="text-white font-medium text-sm">Clean Water Fund</p>
                           <p className="text-white/60 text-xs">Water Access</p>
-                          <p className="text-white/50 text-xs mt-2 italic">*Charitable Tax Receipt Provided</p>
+                          <p className="text-white text-xs mt-2 italic font-bold">*Charitable Tax Receipt Provided</p>
                         </div>
                         <div className="bg-white/5 rounded-xl p-4 text-center border border-white/10">
                           <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -632,7 +667,7 @@ export default function Home() {
                           </div>
                           <p className="text-white font-medium text-sm">Education First</p>
                           <p className="text-white/60 text-xs">School Programs</p>
-                          <p className="text-white/50 text-xs mt-2 italic">*Charitable Tax Receipt Provided</p>
+                          <p className="text-white text-xs mt-2 italic font-bold">*Charitable Tax Receipt Provided</p>
                         </div>
                         <div className="bg-white/5 rounded-xl p-4 text-center border border-white/10">
                           <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -640,7 +675,7 @@ export default function Home() {
                           </div>
                           <p className="text-white font-medium text-sm">Housing Heroes</p>
                           <p className="text-white/60 text-xs">Shelter Support</p>
-                          <p className="text-white/50 text-xs mt-2 italic">*Charitable Tax Receipt Provided</p>
+                          <p className="text-white text-xs mt-2 italic font-bold">*Charitable Tax Receipt Provided</p>
                         </div>
                       </div>
                     </div>
@@ -759,7 +794,7 @@ export default function Home() {
                         onClick={scrollToArtistCards}
                         className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-xl transition-all font-medium shadow-lg hover:shadow-xl"
                       >
-                        Buy Tickets & Give Back
+                        Buy Tickets & Give Love
                       </button>
                       <Link
                         href="/about"
@@ -781,7 +816,7 @@ export default function Home() {
               className="mt-16 mb-8"
             >
               <p className="text-white/50 text-sm text-center">
-                © 2025 Give Back Ticketing Platform
+                © 2025 Give Love Ticketing
               </p>
             </motion.div>
           </div>

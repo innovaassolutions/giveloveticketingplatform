@@ -3,11 +3,9 @@
 import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle, Download, Receipt, Heart, ArrowLeft } from 'lucide-react';
-import { usePricing } from '../../../contexts/PricingContext';
-import { useMerchandise, CartItem } from '../../../contexts/MerchandiseContext';
+import { CartItem } from '../../../contexts/MerchandiseContext';
 
 interface OrderItem {
   ticketTypeId: string;
@@ -16,6 +14,7 @@ interface OrderItem {
   basePrice: number;
   finalPrice: number;
   charityAmount: number;
+  seats?: string[];
 }
 
 interface OrderData {
@@ -34,7 +33,6 @@ interface OrderData {
 }
 
 function CheckoutConfirmationContent() {
-  const { getArtistPricing } = usePricing();
   const searchParams = useSearchParams();
   const [orderData, setOrderData] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -92,39 +90,62 @@ function CheckoutConfirmationContent() {
     };
 
   useEffect(() => {
-    // Get order data from URL params using Next.js searchParams
-    const artistSlug = searchParams.get('artist') || 'lady-gaga';
-    const currentArtist = artistData[artistSlug as keyof typeof artistData] || artistData['lady-gaga'];
+    // Skip if data is already loaded to prevent re-runs from clearing session storage
+    if (orderData) return;
 
-    setTimeout(() => {
-      // Mock order data - in real app this would come from URL params or API
-      const mockOrder: OrderData = {
-        id: 'ORD-' + Date.now(),
-        artistSlug: artistSlug,
-        artistName: currentArtist.artistName,
-        eventTitle: currentArtist.eventTitle,
-        items: [
-          {
-            ticketTypeId: 'ga',
-            ticketTypeName: 'General Admission',
-            quantity: 2,
-            basePrice: 150,
-            finalPrice: 157.5,
-            charityAmount: 7.5,
-          }
-        ],
-        merchandiseItems: [],
-        totalAmount: 315,
-        totalCharityAmount: 15,
-        merchandiseTotal: 0,
-        customerEmail: 'fan@example.com',
-        orderDate: new Date().toISOString(),
-        charityName: currentArtist.charityName,
-      };
-      setOrderData(mockOrder);
-      setLoading(false);
-    }, 1000);
-  }, [searchParams, artistData]);
+    const loadData = async () => {
+      try {
+        // Get order data from sessionStorage (stored during checkout)
+        const storedOrderData = sessionStorage.getItem('orderData');
+        if (!storedOrderData) {
+          console.error('No order data found in session storage');
+          setLoading(false);
+          return;
+        }
+
+        const checkoutOrderData = JSON.parse(storedOrderData);
+        const artistSlug = searchParams.get('artist') || checkoutOrderData.eventId;
+        const currentArtist = artistData[artistSlug as keyof typeof artistData] || artistData['lady-gaga'];
+
+        // Transform checkout API response to match OrderData interface
+        const transformedOrder: OrderData = {
+          id: checkoutOrderData.id,
+          artistSlug: artistSlug,
+          artistName: checkoutOrderData.artistName,
+          eventTitle: currentArtist.eventTitle,
+          items: checkoutOrderData.items.map((item: any) => ({
+            ticketTypeId: item.ticketTypeId,
+            ticketTypeName: item.ticketTypeName,
+            quantity: item.quantity,
+            basePrice: item.unitPrice,
+            finalPrice: item.finalPrice,
+            charityAmount: item.charityAmount / item.quantity, // API returns total, we need per-ticket
+          })),
+          merchandiseItems: [],
+          totalAmount: checkoutOrderData.total,
+          totalCharityAmount: checkoutOrderData.charityAmount,
+          merchandiseTotal: 0,
+          customerEmail: checkoutOrderData.customerInfo.email,
+          orderDate: checkoutOrderData.createdAt,
+          charityName: checkoutOrderData.charityName,
+        };
+
+        setOrderData(transformedOrder);
+        setLoading(false);
+
+        // Clear the session storage only after successfully loading the data
+        // Delay slightly to ensure this effect doesn't run again immediately
+        setTimeout(() => {
+          sessionStorage.removeItem('orderData');
+        }, 100);
+      } catch (error) {
+        console.error('Error loading order data:', error);
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [searchParams, orderData]);
 
   const downloadTaxReceipt = () => {
     if (!orderData) return;
@@ -191,9 +212,13 @@ Order ID: ${orderData.id}
 Customer: ${orderData.customerEmail}
 
 Tickets:
-${orderData.items.map(item =>
-  `${item.quantity}x ${item.ticketTypeName} - $${item.finalPrice.toFixed(2)} each`
-).join('\n')}
+${orderData.items.map(item => {
+  let ticketInfo = `${item.quantity}x ${item.ticketTypeName} - $${item.finalPrice.toFixed(2)} each`;
+  if (item.seats && item.seats.length > 0) {
+    ticketInfo += `\nSeats: ${item.seats.join(', ')}`;
+  }
+  return ticketInfo;
+}).join('\n\n')}
 
 Total Paid: $${orderData.totalAmount.toFixed(2)}
 Charity Contribution: $${orderData.totalCharityAmount.toFixed(2)}
@@ -302,6 +327,14 @@ Thank you for supporting ${orderData.charityName}!
                     Base: ${(item.basePrice * item.quantity).toFixed(2)} +
                     Charity: ${(item.charityAmount * item.quantity).toFixed(2)}
                   </div>
+                  {item.seats && item.seats.length > 0 && (
+                    <div className="text-sm text-white/60 ml-4">
+                      <div className="font-medium">Seats:</div>
+                      {item.seats.map((seat, seatIndex) => (
+                        <div key={seatIndex} className="ml-2">{seat}</div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -1,0 +1,197 @@
+// GiveLove Ticketing Platform Database Schema
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Artist model - represents performers/artists
+model Artist {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  charityName String
+  charityDescription String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  events      Event[]
+  pricing     ArtistPricing?
+  orders      Order[]
+
+  @@map("artists")
+}
+
+// Artist pricing configuration
+model ArtistPricing {
+  id              String   @id @default(cuid())
+  artistId        String   @unique
+  basePrice       Float    @default(75.00)
+  currentUplift   Float    @default(10.0) // Current charity uplift percentage
+  maxUplift       Float    @default(200.0)
+  lastUpdated     DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Demand-based pricing history
+  demandSuggestions DemandSuggestion[]
+
+  // Relations
+  artist          Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@map("artist_pricing")
+}
+
+// Demand-based uplift suggestions
+model DemandSuggestion {
+  id              String   @id @default(cuid())
+  artistPricingId String
+  suggestedUplift Float
+  reason          String
+  ticketsSold     Int      @default(0)
+  totalRevenue    Float    @default(0)
+  demandScore     Float    @default(0)
+  createdAt       DateTime @default(now())
+
+  // Relations
+  artistPricing   ArtistPricing @relation(fields: [artistPricingId], references: [id], onDelete: Cascade)
+
+  @@map("demand_suggestions")
+}
+
+// Event model - specific concerts/shows
+model Event {
+  id          String   @id @default(cuid())
+  artistId    String
+  name        String
+  venue       String
+  date        DateTime
+  totalTickets Int     @default(1000)
+  soldTickets  Int     @default(0)
+  status      EventStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  artist      Artist   @relation(fields: [artistId], references: [id])
+  orders      Order[]
+
+  @@unique([artistId, name])
+  @@map("events")
+}
+
+enum EventStatus {
+  ACTIVE
+  SOLD_OUT
+  CANCELLED
+}
+
+// Customer model
+model Customer {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String
+  lastName  String
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  orders    Order[]
+
+  @@map("customers")
+}
+
+// Order model - ticket purchases
+model Order {
+  id              String      @id @default(cuid())
+  customerId      String
+  artistId        String
+  eventId         String
+
+  // Pricing breakdown
+  basePrice       Float
+  charityUplift   Float       // Uplift percentage at time of purchase
+  charityAmount   Float       // Calculated charity amount
+  platformFee     Float       // Platform fee amount
+  totalAmount     Float       // Final total paid
+
+  // Order details
+  quantity        Int         @default(1)
+  status          OrderStatus @default(PENDING)
+  paymentIntentId String?     // For Stripe integration
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  customer        Customer    @relation(fields: [customerId], references: [id])
+  artist          Artist      @relation(fields: [artistId], references: [id])
+  event           Event       @relation(fields: [eventId], references: [id])
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  REFUNDED
+}
+
+// Revenue tracking model
+model RevenueMetrics {
+  id                String   @id @default(cuid())
+  artistId          String?
+  eventId           String?
+
+  // Revenue breakdown
+  totalRevenue      Float    @default(0)
+  artistRevenue     Float    @default(0)
+  charityRevenue    Float    @default(0)
+  platformRevenue   Float    @default(0)
+
+  // Volume metrics
+  ticketsSold       Int      @default(0)
+  ordersCompleted   Int      @default(0)
+
+  // Time period
+  periodStart       DateTime
+  periodEnd         DateTime
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("revenue_metrics")
+}
+
+// Platform-wide settings
+model PlatformSettings {
+  id                String   @id @default(cuid())
+
+  // Platform fees
+  platformFeePercentage Float  @default(2.5)  // 2.5%
+  platformFeeFixed     Float   @default(1.69) // $1.69
+
+  // Revenue sharing settings
+  allowCustomFees      Boolean @default(false)
+  minFeePercentage     Float   @default(1.0)
+  maxFeePercentage     Float   @default(10.0)
+
+  // Platform info
+  platformName         String  @default("GiveLove")
+  supportEmail         String  @default("support@givelove.com")
+
+  // Timestamps
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("platform_settings")
+}

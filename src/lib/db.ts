@@ -1,18 +1,9 @@
-import { Surreal } from 'surrealdb';
+import { PrismaClient } from '../generated/prisma';
 
-let db: Surreal | null = null;
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-export async function getDB() {
-  if (db) return db;
-  db = new Surreal();
-  await db.connect(process.env.SURREAL_URL!);
-  await db.signin({ username: process.env.SURREAL_USER!, password: process.env.SURREAL_PASS! });
-  await db.use({ namespace: process.env.SURREAL_NS!, database: process.env.SURREAL_DB! });
-  return db;
-}
+export const db = globalForPrisma.prisma ?? new PrismaClient();
 
-export async function q(sql: string, vars?: Record<string, unknown>) {
-  const conn = await getDB();
-  const res = await conn.query(sql, vars);
-  return res;
-}
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db;

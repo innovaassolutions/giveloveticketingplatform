@@ -3,110 +3,175 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, MapPin, Calendar, Clock, Users } from 'lucide-react';
-import SeatMap from '@/components/seating/SeatMap';
-import { usePricing } from '../../../contexts/PricingContext';
+import { ArrowLeft, MapPin, Calendar, Clock, Plus, Minus } from 'lucide-react';
+import { calculateTicketPricing } from '../../../utils/ticketPricing';
+import SeatMap from '../../../components/venue/SeatMap';
 
-interface EventData {
+interface TicketType {
   id: string;
-  title: string;
-  artist: string;
-  venue: string;
-  date: string;
-  time: string;
+  name: string;
+  price: number;
+  available: number;
   description: string;
-  image: string;
-  ticketTypes: {
-    id: string;
-    name: string;
-    price: number;
-    available: number;
-    total: number;
-    description: string;
-  }[];
 }
 
 interface CartItem {
   ticketTypeId: string;
+  ticketTypeName: string;
   quantity: number;
+  price: number;
   seats: string[];
+}
+
+interface SelectedSeat {
+  id: string;
+  row: string;
+  number: number;
+  section: string;
+  status: 'available' | 'selected' | 'unavailable';
+  ticketTypeId: string;
 }
 
 export default function TaylorSwiftEventPage() {
   const router = useRouter();
-  const { getArtistPricing } = usePricing();
-  const artistSlug = 'taylor-swift';
-  const pricing = getArtistPricing(artistSlug);
-  const [eventData, setEventData] = useState<EventData | null>(null);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+  const [artist, setArtist] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [selectedSeats, setSelectedSeats] = useState<SelectedSeat[]>([]);
+  const [showSeatMap, setShowSeatMap] = useState(false);
 
-  // Mock event data for Taylor Swift
+  const artistSlug = 'taylor-swift';
+
+  // Event data - this could be dynamic
+  const eventData = {
+    title: 'The Eras Tour',
+    venue: 'MetLife Stadium, New Jersey',
+    date: '2025-10-12',
+    time: '7:00 PM',
+    description: 'Experience Taylor Swift\'s career-spanning Eras Tour.',
+    totalTickets: 80000,
+    soldTickets: 75000
+  };
+
   useEffect(() => {
-    setTimeout(() => {
-      setEventData({
-        id: 'taylor-swift',
-        title: 'The Eras Tour',
-        artist: 'Taylor Swift',
-        venue: 'MetLife Stadium, New Jersey',
-        date: '2025-10-12',
-        time: '19:00',
-        description: 'Experience the musical journey of Taylor Swift through all her eras in this spectacular tour. From country roots to pop anthems, witness the evolution of one of music\'s biggest superstars.',
-        image: '/TaylorSwift.webp',
-        ticketTypes: [
-          {
-            id: 'ga',
-            name: 'General Admission',
-            price: 150.00,
-            available: 189,
-            total: 800,
-            description: 'Standing room with amazing stage views'
-          },
-          {
-            id: 'vip',
-            name: 'VIP Package',
-            price: 450.00,
-            available: 6,
-            total: 100,
-            description: 'Premium seating, meet & greet, exclusive merchandise, early entry'
-          }
-        ]
-      });
-      setLoading(false);
-    }, 500);
+    const fetchArtistData = async () => {
+      try {
+        const response = await fetch(`/api/artists/${artistSlug}`);
+        if (!response.ok) throw new Error('Failed to fetch artist data');
+        const data = await response.json();
+        setArtist(data);
+      } catch (error) {
+        console.error('Error fetching artist:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArtistData();
   }, []);
 
-  const addToCart = (ticketTypeId: string, quantity: number = 1) => {
-    setCart(prev => {
-      const existing = prev.find(item => item.ticketTypeId === ticketTypeId);
-      if (existing) {
-        return prev.map(item =>
-          item.ticketTypeId === ticketTypeId
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
+  const getTicketTypes = (): TicketType[] => {
+    if (!artist || !artist.pricing) return [];
+
+    const availableTickets = Math.max(0, eventData.totalTickets - eventData.soldTickets);
+
+    return [
+      {
+        id: 'ga',
+        name: 'General Admission',
+        price: artist.pricing.basePrice,
+        available: Math.max(0, Math.floor(availableTickets * 0.8)),
+        description: 'Standing room access to the stadium floor'
+      },
+      {
+        id: 'vip',
+        name: 'VIP Package',
+        price: artist.pricing.basePrice * 2.5,
+        available: Math.max(0, Math.floor(availableTickets * 0.2)),
+        description: 'Premium seating, meet & greet, exclusive merchandise'
       }
-      return [...prev, { ticketTypeId, quantity, seats: [] }];
-    });
+    ];
+  };
+
+  const addToCart = (ticketTypeId: string) => {
+    const ticketType = getTicketTypes().find(t => t.id === ticketTypeId);
+    if (!ticketType) return;
+
+    const existingItem = cart.find(item => item.ticketTypeId === ticketTypeId);
+    if (existingItem) {
+      if (existingItem.quantity < ticketType.available) {
+        setCart(cart.map(item =>
+          item.ticketTypeId === ticketTypeId
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        ));
+      }
+    } else {
+      setCart([...cart, {
+        ticketTypeId,
+        ticketTypeName: ticketType.name,
+        quantity: 1,
+        price: ticketType.price,
+        seats: []
+      }]);
+    }
   };
 
   const removeFromCart = (ticketTypeId: string) => {
-    setCart(prev => prev.filter(item => item.ticketTypeId !== ticketTypeId));
+    const existingItem = cart.find(item => item.ticketTypeId === ticketTypeId);
+    if (!existingItem) return;
+
+    if (existingItem.quantity === 1) {
+      setCart(cart.filter(item => item.ticketTypeId !== ticketTypeId));
+    } else {
+      setCart(cart.map(item =>
+        item.ticketTypeId === ticketTypeId
+          ? { ...item, quantity: item.quantity - 1 }
+          : item
+      ));
+    }
   };
 
   const getCartTotal = () => {
-    if (!eventData) return 0;
+    if (!artist?.pricing) return 0;
+
     return cart.reduce((total, item) => {
-      const ticketType = eventData.ticketTypes.find(t => t.id === item.ticketTypeId);
-      return total + (ticketType?.price || 0) * item.quantity;
+      const pricing = calculateTicketPricing(item.price, artist.pricing.currentUplift);
+      return total + (pricing.totalPrice * item.quantity);
     }, 0);
   };
 
-  const getCartQuantity = () => {
-    return cart.reduce((total, item) => total + item.quantity, 0);
+  const handleSeatSelection = (seats: SelectedSeat[]) => {
+    setSelectedSeats(seats);
+
+    // Group seats by ticket type
+    const seatsByType = seats.reduce((acc, seat) => {
+      if (!acc[seat.ticketTypeId]) {
+        acc[seat.ticketTypeId] = [];
+      }
+      acc[seat.ticketTypeId].push(`${seat.section} - Row ${seat.row}, Seat ${seat.number}`);
+      return acc;
+    }, {} as Record<string, string[]>);
+
+    // Update cart with seat selections
+    const newCart: CartItem[] = [];
+    Object.entries(seatsByType).forEach(([ticketTypeId, seatList]) => {
+      const ticketType = getTicketTypes().find(t => t.id === ticketTypeId);
+      if (ticketType) {
+        newCart.push({
+          ticketTypeId,
+          ticketTypeName: ticketType.name,
+          quantity: seatList.length,
+          price: ticketType.price,
+          seats: seatList
+        });
+      }
+    });
+
+    setCart(newCart);
   };
 
   const handleCheckout = async () => {
@@ -116,15 +181,15 @@ export default function TaylorSwiftEventPage() {
 
     try {
       const checkoutData = {
-        eventId: 'taylor-swift',
+        eventId: artistSlug,
         items: cart.map(item => ({
           ticketTypeId: item.ticketTypeId,
           quantity: item.quantity,
-          seats: selectedSeats.slice(0, item.quantity)
+          seats: item.seats
         })),
         customerInfo: {
-          email: 'demo@example.com',
-          name: 'Demo Customer',
+          email: 'fan@example.com',
+          name: 'Test Customer',
           phone: '+1-555-123-4567'
         }
       };
@@ -140,8 +205,11 @@ export default function TaylorSwiftEventPage() {
       const result = await response.json();
 
       if (result.success) {
-        // Redirect to confirmation page with artist parameter
-        router.push('/checkout/confirmation?artist=taylor-swift&event=eras-tour');
+        // Store order data in sessionStorage for confirmation page
+        sessionStorage.setItem('orderData', JSON.stringify(result.order));
+
+        // Redirect to confirmation page with basic params
+        router.push(`/checkout/confirmation?artist=${artistSlug}&orderId=${result.order.id}`);
       } else {
         alert(`Checkout failed: ${result.error}`);
       }
@@ -155,252 +223,194 @@ export default function TaylorSwiftEventPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading event details...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-red-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading event details...</div>
       </div>
     );
   }
 
-  if (!eventData) {
+  if (!artist) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-400 mb-4">Event Not Found</h1>
-          <Link href="/" className="text-primary hover:text-primary-light">
-            Return to Home
-          </Link>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-red-900 flex items-center justify-center">
+        <div className="text-white text-xl">Event not found</div>
       </div>
     );
   }
 
+  const ticketTypes = getTicketTypes();
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-600 to-red-600">
       {/* Header */}
-      <header className="border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="bg-black/20 backdrop-blur-md border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-4 py-6">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
 
-          {/* Artist Image - Top Right */}
-          <div className="flex items-center gap-4">
-            <img
-              src="/TaylorSwift.webp"
-              alt="Taylor Swift"
-              className="w-20 h-20 rounded-2xl object-cover border-2 border-white/20 shadow-lg"
-            />
-          </div>
-        </div>
-      </header>
+          <div className="flex items-start gap-6">
+            <div className="w-32 h-32 rounded-2xl overflow-hidden">
+              <Image
+                src="/TaylorSwift.webp"
+                alt="Taylor Swift"
+                width={128}
+                height={128}
+                className="w-full h-full object-cover"
+              />
+            </div>
 
-      {/* Event Hero */}
-      <section className="relative">
-        <div className="h-64 bg-gradient-to-r from-purple-600 to-pink-500 flex items-center">
-          <div className="max-w-7xl mx-auto px-6 w-full">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-white"
-            >
-              <h1 className="text-4xl md:text-6xl font-bold mb-2">{eventData.artist}</h1>
-              <h2 className="text-2xl md:text-3xl font-light mb-4">{eventData.title}</h2>
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-white mb-2">{eventData.title}</h1>
+              <p className="text-2xl text-purple-200 mb-4">{artist.name}</p>
 
-              <div className="flex flex-wrap gap-6 text-lg">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-white/80">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-5 h-5" />
                   <span>{eventData.venue}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
-                  <span>{new Date(eventData.date).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}</span>
+                  <span>{eventData.date}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="w-5 h-5" />
                   <span>{eventData.time}</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Event Details & Seating */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Event Description */}
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="bg-gray-900 rounded-xl p-6"
-            >
-              <h3 className="text-2xl font-bold mb-4">About This Event</h3>
-              <p className="text-gray-300 leading-relaxed">{eventData.description}</p>
-            </motion.section>
+      <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Ticket Selection */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-white/10">
+            <h2 className="text-2xl font-bold text-white mb-6">Select Tickets</h2>
 
-            {/* Interactive Seating Map */}
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-gray-900 rounded-xl p-6"
-            >
-              <h3 className="text-2xl font-bold mb-4">Select Your Seats</h3>
-              <SeatMap
-                rows={12}
-                cols={16}
-                sold={['R0C0', 'R0C1', 'R1C5', 'R2C3', 'R3C8', 'R4C12', 'R5C2', 'R6C9', 'R7C15', 'R8C6']}
-                held={['R1C1', 'R2C2', 'R3C3']}
-                selected={selectedSeats}
-                onSeatSelect={(seatId, isSelected) => {
-                  setSelectedSeats(prev =>
-                    isSelected
-                      ? [...prev, seatId]
-                      : prev.filter(s => s !== seatId)
-                  );
-                }}
-                className="w-full"
-              />
-            </motion.section>
-          </div>
+            <div className="space-y-4">
+              {ticketTypes.map((ticketType) => {
+                const cartItem = cart.find(item => item.ticketTypeId === ticketType.id);
+                const pricing = calculateTicketPricing(ticketType.price, artist.pricing.currentUplift);
 
-          {/* Right Column - Ticket Selection & Cart */}
-          <div className="space-y-6">
-            {/* Ticket Types */}
-            <motion.section
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="bg-gray-900 rounded-xl p-6"
-            >
-              <h3 className="text-2xl font-bold mb-6">Ticket Types</h3>
-              <div className="space-y-4">
-                {eventData.ticketTypes.map((ticketType) => (
-                  <div key={ticketType.id} className="border border-gray-700 rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="text-lg font-semibold">{ticketType.name}</h4>
-                      <span className="text-2xl font-bold text-primary">
-                        ${ticketType.price.toFixed(2)}
-                      </span>
-                    </div>
-                    <p className="text-gray-400 text-sm mb-3">{ticketType.description}</p>
-
-                    {/* Pricing Breakdown */}
-                    <div className="bg-gray-800 rounded-lg p-3 mb-3 text-sm">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-gray-400">Face Value</span>
-                        <span className="text-white">${(ticketType.price / (1 + pricing.upliftPercentage / 100)).toFixed(2)}</span>
+                return (
+                  <div key={ticketType.id} className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">{ticketType.name}</h3>
+                        <p className="text-white/60 text-sm">{ticketType.description}</p>
                       </div>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-gray-400">Charity Uplift ({pricing.upliftPercentage}%)</span>
-                        <span className="text-green-400">${(ticketType.price - (ticketType.price / (1 + pricing.upliftPercentage / 100))).toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-gray-400">Platform Fee (2.5% + $1.69)</span>
-                        <span className="text-yellow-400">${(ticketType.price * 0.025 + 1.69).toFixed(2)}</span>
-                      </div>
-                      <div className="border-t border-gray-600 pt-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-white font-semibold">Your Impact to Charity</span>
-                          <span className="text-green-400 font-bold">${(ticketType.price - (ticketType.price / (1 + pricing.upliftPercentage / 100))).toFixed(2)}</span>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-white">
+                          ${pricing.totalPrice.toFixed(2)}
+                        </div>
+                        <div className="text-sm text-white/60">
+                          Base: ${pricing.faceValue.toFixed(2)} + Charity: ${pricing.charityAmount.toFixed(2)} + Platform: ${pricing.platformFee.toFixed(2)}
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Users className="w-4 h-4" />
-                        <span className="text-gray-400">
-                          {ticketType.available} of {ticketType.total} available
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => addToCart(ticketType.id)}
-                        disabled={ticketType.available === 0}
-                        className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark
-                                 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
-                      >
-                        {ticketType.available === 0 ? 'Sold Out' : 'Add to Cart'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.section>
 
-            {/* Shopping Cart */}
-            {cart.length > 0 && (
-              <motion.section
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="bg-gray-900 rounded-xl p-6"
-              >
-                <h3 className="text-2xl font-bold mb-6">Your Cart</h3>
-                <div className="space-y-4 mb-6">
-                  {cart.map((item) => {
-                    const ticketType = eventData.ticketTypes.find(t => t.id === item.ticketTypeId);
-                    if (!ticketType) return null;
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/60">{ticketType.available} available</span>
 
-                    return (
-                      <div key={item.ticketTypeId} className="flex justify-between items-center border-b border-gray-700 pb-4">
-                        <div>
-                          <h4 className="font-semibold">{ticketType.name}</h4>
-                          <p className="text-gray-400 text-sm">Quantity: {item.quantity}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold">${(ticketType.price * item.quantity).toFixed(2)}</p>
+                      {cartItem ? (
+                        <div className="flex items-center gap-3">
                           <button
-                            onClick={() => removeFromCart(item.ticketTypeId)}
-                            className="text-red-400 text-sm hover:text-red-300"
+                            onClick={() => removeFromCart(ticketType.id)}
+                            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
                           >
-                            Remove
+                            <Minus className="w-4 h-4" />
+                          </button>
+                          <span className="text-white font-medium w-8 text-center">{cartItem.quantity}</span>
+                          <button
+                            onClick={() => addToCart(ticketType.id)}
+                            disabled={cartItem.quantity >= ticketType.available}
+                            className="w-8 h-8 rounded-full bg-purple-600 hover:bg-purple-700 disabled:bg-white/10 flex items-center justify-center text-white transition-colors"
+                          >
+                            <Plus className="w-4 h-4" />
                           </button>
                         </div>
+                      ) : (
+                        <button
+                          onClick={() => addToCart(ticketType.id)}
+                          disabled={ticketType.available === 0}
+                          className="px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-white/10 text-white rounded-lg font-medium transition-colors"
+                        >
+                          {ticketType.available === 0 ? 'Sold Out' : 'Add to Cart'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Seat Map */}
+          <SeatMap
+            venueLayout="metlife-stadium"
+            ticketTypes={ticketTypes}
+            onSeatSelection={handleSeatSelection}
+            maxSeats={8}
+          />
+        </div>
+
+        {/* Cart Summary */}
+        <div className="lg:col-span-1">
+          <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-white/10 sticky top-8">
+            <h2 className="text-xl font-bold text-white mb-4">Cart Summary</h2>
+
+            {cart.length === 0 ? (
+              <p className="text-white/60">No tickets selected</p>
+            ) : (
+              <div className="space-y-4">
+                {cart.map((item) => {
+                  const pricing = calculateTicketPricing(item.price, artist.pricing.currentUplift);
+                  return (
+                    <div key={item.ticketTypeId} className="space-y-2">
+                      <div className="flex justify-between">
+                        <div>
+                          <div className="text-white">{item.quantity}x {item.ticketTypeName}</div>
+                          <div className="text-white/60 text-sm">${pricing.totalPrice.toFixed(2)} each</div>
+                        </div>
+                        <div className="text-white font-medium">
+                          ${(pricing.totalPrice * item.quantity).toFixed(2)}
+                        </div>
                       </div>
-                    );
-                  })}
+                      {item.seats.length > 0 && (
+                        <div className="text-white/60 text-xs ml-2">
+                          <div className="font-medium">Selected Seats:</div>
+                          {item.seats.map((seat, index) => (
+                            <div key={index}>{seat}</div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                <div className="border-t border-white/20 pt-4">
+                  <div className="flex justify-between text-lg font-bold text-white">
+                    <span>Total</span>
+                    <span>${getCartTotal().toFixed(2)}</span>
+                  </div>
+                  <p className="text-white/60 text-sm mt-1">
+                    Supporting {artist.charityName}
+                  </p>
                 </div>
 
-                <div className="border-t border-gray-700 pt-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-lg font-semibold">Total:</span>
-                    <span className="text-2xl font-bold text-primary">${getCartTotal().toFixed(2)}</span>
-                  </div>
-                  <button
-                    onClick={handleCheckout}
-                    disabled={getCartQuantity() === 0 || checkoutLoading}
-                    className="w-full bg-primary text-white py-3 rounded-lg font-semibold
-                             hover:bg-primary-dark transition-colors disabled:bg-gray-600
-                             disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {checkoutLoading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Processing...
-                      </>
-                    ) : (
-                      `Proceed to Checkout (${getCartQuantity()} ticket${getCartQuantity() !== 1 ? 's' : ''})`
-                    )}
-                  </button>
-                </div>
-              </motion.section>
+                <button
+                  onClick={handleCheckout}
+                  disabled={checkoutLoading}
+                  className="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white font-bold rounded-lg transition-colors"
+                >
+                  {checkoutLoading ? 'Processing...' : 'Checkout'}
+                </button>
+              </div>
             )}
           </div>
         </div>

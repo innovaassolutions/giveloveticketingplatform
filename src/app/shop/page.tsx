@@ -11,8 +11,8 @@ import { useUnifiedCart } from '../../contexts/UnifiedCartContext';
 const initialMerchandiseItems: MerchandiseItem[] = [
   {
     id: 'tshirt-giveback-logo',
-    name: 'GiveBack Logo T-Shirt',
-    description: 'Soft cotton t-shirt with embroidered GiveBack logo. Proceeds support music education.',
+    name: 'GiveLove Logo T-Shirt',
+    description: 'Soft cotton t-shirt with embroidered GiveLove logo. Proceeds support music education.',
     price: 28.00,
     image: '/images/merch/tshirt-giveback-logo.jpg',
     category: 'apparel',
@@ -40,7 +40,7 @@ const initialMerchandiseItems: MerchandiseItem[] = [
   },
   {
     id: 'water-bottle-stainless',
-    name: 'GiveBack Stainless Water Bottle',
+    name: 'GiveLove Stainless Water Bottle',
     description: 'Insulated stainless steel water bottle. Stay hydrated while making a difference.',
     price: 24.00,
     image: '/images/merch/water-bottle-stainless.jpg',
@@ -316,7 +316,7 @@ export default function ShopPage() {
                 <span className="text-white font-medium">Shop</span>
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white">GiveBack Shop</h1>
+                <h1 className="text-3xl font-bold text-white">GiveLove Shop</h1>
                 <p className="text-white/70">Merchandise that makes a difference</p>
               </div>
             </div>

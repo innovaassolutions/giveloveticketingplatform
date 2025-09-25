@@ -4,23 +4,134 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import AdminPasswordProtection from '../../../components/AdminPasswordProtection';
+import UpliftControl from '../../../components/artist/UpliftControl';
+
+interface ArtistData {
+  id: string;
+  name: string;
+  slug: string;
+  charityName: string;
+  charityDescription: string;
+  pricing: {
+    basePrice: number;
+    currentUplift: number;
+    maxUplift: number;
+  };
+  events: Array<{
+    id: string;
+    name: string;
+    venue: string;
+    date: string;
+    totalTickets: number;
+    soldTickets: number;
+  }>;
+  _count: {
+    orders: number;
+  };
+}
 
 export default function TaylorSwiftArtistPortal() {
-  const [upliftPercentage, setUpliftPercentage] = useState(12);
-  const [basePrice, setBasePrice] = useState(200);
-  const [totalRevenue, setTotalRevenue] = useState(185000);
-  const [ticketsSold, setTicketsSold] = useState(925);
+  const artistSlug = 'taylor-swift';
+  const [artistData, setArtistData] = useState<ArtistData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Calculate dynamic pricing
-  const finalPrice = basePrice * (1 + upliftPercentage / 100);
-  const charityAmount = finalPrice - basePrice;
-  const artistRevenue = basePrice * 0.85; // 85% after platform fees
-  const platformFee = basePrice * 0.15;
+  // Fetch artist data from database
+  useEffect(() => {
+    fetchArtistData();
+  }, []);
 
-  // Revenue breakdown
+  const fetchArtistData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/artists/${artistSlug}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch artist data');
+      }
+      const data = await response.json();
+      setArtistData(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load artist data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle uplift changes
+  const handleUpliftChange = async (newUpliftPercentage: number) => {
+    try {
+      const response = await fetch(`/api/artists/${artistSlug}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentUplift: newUpliftPercentage
+        })
+      });
+
+      if (response.ok) {
+        // Refresh artist data to get updated pricing
+        await fetchArtistData();
+      }
+    } catch (error) {
+      console.error('Failed to update uplift:', error);
+    }
+  };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading artist data...</div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error || !artistData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <div className="text-red-400 text-xl">Error: {error || 'Artist not found'}</div>
+      </div>
+    );
+  }
+
+  // Calculate pricing using database values
+  const basePrice = artistData.pricing.basePrice;
+  const upliftPercentage = artistData.pricing.currentUplift;
+  const charityAmount = basePrice * (upliftPercentage / 100);
+  const finalPrice = basePrice + charityAmount;
+  const platformFeeAmount = (finalPrice * 0.025) + 1.69;
+  const artistRevenue = basePrice;
+
+  // Use actual event data from database
+  const event = artistData.events[0];
+  const ticketsSold = event ? event.soldTickets : 0;
+  const totalTickets = event ? event.totalTickets : 1000;
+
+  // Revenue breakdown using actual data
   const totalCharityRaised = ticketsSold * charityAmount;
   const totalArtistEarnings = ticketsSold * artistRevenue;
-  const totalPlatformFees = ticketsSold * platformFee;
+  const totalPlatformFees = ticketsSold * platformFeeAmount;
+  const totalRevenue = totalCharityRaised + totalArtistEarnings + totalPlatformFees;
+
+  // Mock event data for demand calculation (using real data where available)
+  const eventData = {
+    ticketTypes: [
+      {
+        id: 'ga',
+        name: 'General Admission',
+        price: basePrice,
+        available: totalTickets - ticketsSold,
+        total: totalTickets,
+        description: 'Standing room with amazing stage views'
+      }
+    ],
+    venue: event?.venue || 'Madison Square Garden',
+    date: event?.date || '2025-10-12',
+    startTime: '8:00 PM EST'
+  };
 
   return (
     <AdminPasswordProtection>
@@ -49,89 +160,42 @@ export default function TaylorSwiftArtistPortal() {
 
           {/* Charity Uplift Control */}
           <div className="lg:col-span-1">
+            {/* Charity Selection */}
             <motion.div
-              className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-white/10"
+              className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-white/10 mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h2 className="text-xl font-semibold text-white mb-6">Charity Uplift Settings</h2>
-
-              {/* Charity Selection */}
-              <div className="mb-6">
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  Selected Charity
-                </label>
-                <div className="bg-white/10 rounded-lg p-3 border border-white/20">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">E</span>
-                    </div>
-                    <div>
-                      <p className="text-white font-medium">Education for All</p>
-                      <p className="text-white/60 text-xs">Supporting literacy programs</p>
-                    </div>
+              <h2 className="text-xl font-semibold text-white mb-4">Selected Charity</h2>
+              <div className="bg-white/10 rounded-lg p-3 border border-white/20">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">E</span>
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">Education for All</p>
+                    <p className="text-white/60 text-xs">Supporting literacy programs</p>
                   </div>
                 </div>
               </div>
+            </motion.div>
 
-              {/* Uplift Slider */}
-              <div className="mb-6">
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  Charity Uplift: {upliftPercentage}%
-                </label>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="0.5"
-                  value={upliftPercentage}
-                  onChange={(e) => setUpliftPercentage(parseFloat(e.target.value))}
-                  className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
-                />
-                <div className="flex justify-between text-xs text-white/60 mt-1">
-                  <span>0%</span>
-                  <span>100%</span>
-                </div>
-              </div>
-
-              {/* Price Breakdown */}
-              <div className="space-y-3 mb-6">
-                <h3 className="text-white font-medium">Price Breakdown (Per Ticket)</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between text-white/80">
-                    <span>Base Price:</span>
-                    <span>${basePrice.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-pink-300">
-                    <span>Charity Uplift:</span>
-                    <span>+${charityAmount.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-white font-medium border-t border-white/20 pt-2">
-                    <span>Final Price:</span>
-                    <span>${finalPrice.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Revenue Split */}
-              <div className="space-y-3">
-                <h3 className="text-white font-medium">Revenue Split (Per Ticket)</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between text-green-300">
-                    <span>Artist Earnings:</span>
-                    <span>${artistRevenue.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-pink-300">
-                    <span>Charity Donation:</span>
-                    <span>${charityAmount.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-blue-300">
-                    <span>Platform Fee:</span>
-                    <span>${platformFee.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
+            {/* UpliftControl Component */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <UpliftControl
+                initialValue={upliftPercentage}
+                eventData={eventData}
+                ticketPrice={basePrice}
+                onChange={(newPercentage) => {
+                  handleUpliftChange(newPercentage);
+                }}
+                className="bg-black/30 backdrop-blur-md border-white/10 text-white"
+              />
             </motion.div>
           </div>
 
@@ -259,43 +323,6 @@ export default function TaylorSwiftArtistPortal() {
         </motion.div>
       </div>
 
-      <style jsx>{`
-        .slider {
-          background: linear-gradient(to right, #a855f7 0%, #a855f7 ${upliftPercentage}%, rgba(255,255,255,0.2) ${upliftPercentage}%, rgba(255,255,255,0.2) 100%);
-        }
-
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: linear-gradient(45deg, #a855f7, #ec4899);
-          cursor: pointer;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .slider::-webkit-slider-track {
-          height: 8px;
-          border-radius: 4px;
-          background: transparent;
-        }
-
-        .slider::-moz-range-thumb {
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: linear-gradient(45deg, #a855f7, #ec4899);
-          cursor: pointer;
-          border: none;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .slider::-moz-range-track {
-          height: 8px;
-          border-radius: 4px;
-          background: transparent;
-        }
-      `}</style>
     </div>
     </AdminPasswordProtection>
   );
