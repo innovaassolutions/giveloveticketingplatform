@@ -45,17 +45,6 @@ export default function Home() {
     <div className="min-h-screen text-foreground flex flex-col relative overflow-hidden">
       {/* Header with Navigation */}
       <header className="relative z-50 p-6">
-        {/* Logo - Top Left */}
-        <div className="absolute top-6 left-6 z-50">
-          <Image
-            src="/images/GiveLoveLogo.png"
-            alt="GiveLove Logo"
-            width={600}
-            height={200}
-            className="w-auto h-36"
-            priority
-          />
-        </div>
 
         {/* Desktop Navigation - Individual Glass Buttons */}
         <div className="hidden md:flex justify-center items-center space-x-8">
@@ -598,13 +587,8 @@ export default function Home() {
                     {/* Visual Bar */}
                     <div className="space-y-6">
                       <div className="relative">
-                        <div className="h-20 bg-gray-700 rounded-xl overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-blue-500 to-blue-600 w-[70%] flex items-center justify-center">
-                            <span className="text-white font-bold text-lg">70% Artist/Venue</span>
-                          </div>
-                        </div>
-                        <div className="absolute top-0 right-0 h-20 bg-gradient-to-r from-brand-400 to-brand-500 w-[30%] flex items-center justify-center rounded-r-xl">
-                          <span className="text-white font-bold text-lg">30% Uplift</span>
+                        <div className="h-20 bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl flex items-center justify-center">
+                          <span className="text-white font-bold text-lg">Ticket Face Value + Uplift</span>
                         </div>
                       </div>
 
@@ -614,18 +598,22 @@ export default function Home() {
                         <div className="space-y-3">
                           <div className="flex justify-between items-center">
                             <span className="text-white/80">Face Value</span>
-                            <span className="text-blue-400 font-bold">$70</span>
+                            <span className="text-teal-400 font-bold">$100</span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-white/80">Charity Uplift</span>
-                            <span className="text-brand-400 font-bold">$30</span>
+                            <span className="text-white/80">Uplift</span>
+                            <span className="text-teal-400 font-bold">$200</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-white/80">Platform Fee</span>
+                            <span className="text-gray-400 font-bold">($9.19)</span>
                           </div>
                           <div className="border-t border-white/20 pt-3">
                             <div className="flex justify-between items-center">
                               <span className="text-white font-semibold">Your Impact</span>
-                              <span className="text-brand-400 font-bold text-lg">$30 to charity</span>
+                              <span className="text-brand-400 font-bold text-lg">$190.81 to charity</span>
                             </div>
-                            <p className="text-white/50 text-xs mt-3 italic">*platform fee 2.5% + $1.69 on each ticket sold</p>
+                            <p className="text-white/50 text-xs mt-3 italic">*platform fee: (Face Value + Uplift) × 0.025 + $1.69</p>
                           </div>
                         </div>
                       </div>

@@ -353,6 +353,7 @@ export default function DollyPartonEventPage() {
           {/* Seat Map */}
           <SeatMap
             venueLayout="grand-ole-opry"
+            artistSlug={artistSlug}
             ticketTypes={ticketTypes}
             onSeatSelection={handleSeatSelection}
             maxSeats={8}

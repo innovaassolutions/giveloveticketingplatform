@@ -2,12 +2,11 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Unlock, TrendingUp, DollarSign, Users, Globe, Heart, Target, BarChart3, PieChart, Home } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Unlock, TrendingUp, Globe, Heart, Target, Home } from 'lucide-react';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 // Password protection
-const INVESTOR_PASSWORD = 'giveback2025'; // Change this to your preferred password
+const INVESTOR_PASSWORD = 'givelove2025'; // Change this to your preferred password
 
 interface Slide {
   id: number;
@@ -57,7 +56,7 @@ export default function InvestorPitch() {
     { name: 'StubHub', marketShare: 15, fees: '10-15%', charity: '0%' },
     { name: 'Eventbrite', marketShare: 8, fees: '3.5-7%', charity: '0%' },
     { name: 'SeatGeek', marketShare: 4, fees: '10-15%', charity: '0%' },
-    { name: 'Give Back', marketShare: 0, fees: '2.5% + $1.69', charity: '0-25%' }
+    { name: 'GiveLove', marketShare: 0, fees: '2.5% + $1.69', charity: '0-25%' }
   ];
 
   const handleLogin = (e: React.FormEvent) => {
@@ -149,9 +148,18 @@ export default function InvestorPitch() {
             <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-6 rounded-xl text-white text-center shadow-lg">
               <img src="https://images.unsplash.com/photo-1633158829875-e5316a358c6f?w=60&h=60&fit=crop&crop=center"
                    alt="funding" className="w-12 h-12 mx-auto mb-3 rounded-full opacity-80" />
-              <h3 className="text-lg font-bold mb-1">Seeking</h3>
-              <div className="text-3xl font-bold mb-1">$X Million</div>
-              <div className="text-blue-100">Seed/Series A</div>
+              <h3 className="text-lg font-bold mb-3">Seeking</h3>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-white/20 px-2 py-2 rounded-lg backdrop-blur-sm">
+                  <div className="text-sm font-bold">Lean Path</div>
+                  <div className="text-lg font-bold">$7M Raise</div>
+                </div>
+                <div className="bg-white/20 px-2 py-2 rounded-lg backdrop-blur-sm">
+                  <div className="text-sm font-bold">Aggressive Path</div>
+                  <div className="text-lg font-bold">$12M Raise</div>
+                </div>
+              </div>
+              <div className="text-blue-100 text-sm mt-2">Seed/Series A</div>
               <div className="text-blue-200 text-xs mt-1">Scale technology & compliance</div>
             </div>
             <div className="bg-gradient-to-br from-green-500 to-teal-600 p-6 rounded-xl text-white text-center shadow-lg">
@@ -172,71 +180,130 @@ export default function InvestorPitch() {
             </div>
           </div>
 
+          {/* Two Funding Scenarios - Side by Side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Scenario 1: Lean Path ($7M Raise) */}
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-lg">
-              <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-                <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=40&h=40&fit=crop&crop=center"
-                     alt="funds" className="w-6 h-6 rounded-full" />
-                Use of Funds
+              <h3 className="text-xl font-bold mb-4 text-gray-800 text-center">
+                Scenario 1: Lean Path ($7M Raise)
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-2 bg-blue-50 rounded-lg">
                   <span className="text-gray-700 font-medium text-sm">Development & Technology</span>
-                  <span className="font-bold text-blue-600">40%</span>
+                  <div className="text-right">
+                    <span className="font-bold text-blue-600">40%</span>
+                    <div className="text-xs text-gray-500">$2.8M</div>
+                  </div>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-red-50 rounded-lg">
-                  <span className="text-gray-700 font-medium text-sm">Compliance & Legal Frameworks</span>
-                  <span className="font-bold text-red-600">35%</span>
+                  <span className="text-gray-700 font-medium text-sm">Compliance & Legal</span>
+                  <div className="text-right">
+                    <span className="font-bold text-red-600">35%</span>
+                    <div className="text-xs text-gray-500">$2.45M</div>
+                  </div>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-green-50 rounded-lg">
                   <span className="text-gray-700 font-medium text-sm">Marketing & Artist Onboarding</span>
-                  <span className="font-bold text-green-600">15%</span>
+                  <div className="text-right">
+                    <span className="font-bold text-green-600">15%</span>
+                    <div className="text-xs text-gray-500">$1.05M</div>
+                  </div>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-purple-50 rounded-lg">
                   <span className="text-gray-700 font-medium text-sm">Operations & Infrastructure</span>
-                  <span className="font-bold text-purple-600">10%</span>
+                  <div className="text-right">
+                    <span className="font-bold text-purple-600">10%</span>
+                    <div className="text-xs text-gray-500">$0.7M</div>
+                  </div>
                 </div>
-              </div>
-              <div className="mt-3 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg">
-                Focus: US/EU/SEA/Middle East expansion and regulatory compliance
               </div>
             </div>
 
+            {/* Scenario 2: Aggressive Path ($12M Raise) */}
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-lg">
-              <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-                <img src="https://images.unsplash.com/photo-1551836022-8b2858c9c69b?w=40&h=40&fit=crop&crop=center"
-                     alt="milestones" className="w-6 h-6 rounded-full" />
-                Go-to-Market Strategy
+              <h3 className="text-xl font-bold mb-4 text-gray-800 text-center">
+                Scenario 2: Aggressive Path ($12M Raise)
               </h3>
               <div className="space-y-3">
-                <div className="flex items-start gap-3 p-2 bg-green-50 rounded-lg">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <div>
-                    <span className="text-gray-800 font-semibold text-sm">Artist-First Approach</span>
-                    <p className="text-gray-600 text-xs mt-0.5">Leverage relationships with high-profile stars (e.g., Lady Gaga)</p>
+                <div className="flex justify-between items-center p-2 bg-blue-50 rounded-lg">
+                  <span className="text-gray-700 font-medium text-sm">Development & Technology</span>
+                  <div className="text-right">
+                    <span className="font-bold text-blue-600">40%</span>
+                    <div className="text-xs text-gray-500">$4.8M</div>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-2 bg-blue-50 rounded-lg">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <div>
-                    <span className="text-gray-800 font-semibold text-sm">Flagship Tours Launch</span>
-                    <p className="text-gray-600 text-xs mt-0.5">Media coverage → fan adoption → viral growth</p>
+                <div className="flex justify-between items-center p-2 bg-red-50 rounded-lg">
+                  <span className="text-gray-700 font-medium text-sm">Compliance & Legal</span>
+                  <div className="text-right">
+                    <span className="font-bold text-red-600">35%</span>
+                    <div className="text-xs text-gray-500">$4.2M</div>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-2 bg-purple-50 rounded-lg">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <div>
-                    <span className="text-gray-800 font-semibold text-sm">Global Expansion</span>
-                    <p className="text-gray-600 text-xs mt-0.5">Venues, festivals, and regional markets worldwide</p>
+                <div className="flex justify-between items-center p-2 bg-green-50 rounded-lg">
+                  <span className="text-gray-700 font-medium text-sm">Marketing & Artist Onboarding</span>
+                  <div className="text-right">
+                    <span className="font-bold text-green-600">15%</span>
+                    <div className="text-xs text-gray-500">$1.8M</div>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-2 bg-orange-50 rounded-lg">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <div>
-                    <span className="text-gray-800 font-semibold text-sm">Regulatory Partnerships</span>
-                    <p className="text-gray-600 text-xs mt-0.5">Charities and regulators ensure compliance</p>
+                <div className="flex justify-between items-center p-2 bg-purple-50 rounded-lg">
+                  <span className="text-gray-700 font-medium text-sm">Operations & Infrastructure</span>
+                  <div className="text-right">
+                    <span className="font-bold text-purple-600">10%</span>
+                    <div className="text-xs text-gray-500">$1.2M</div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Note about scenarios */}
+          <div className="text-center bg-gray-50 p-4 rounded-lg">
+            <p className="text-gray-700 font-medium">
+              Both scenarios deliver strong financial returns + unparalleled social impact.
+            </p>
+            <p className="text-gray-600 text-sm">
+              The scale of our raise determines the speed of our global rollout.
+            </p>
+          </div>
+
+          {/* Go-to-Market Strategy - Restructured */}
+          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-lg">
+            <h3 className="text-xl font-bold mb-6 text-gray-800 flex items-center justify-center gap-2">
+              <img src="https://images.unsplash.com/photo-1551836022-8b2858c9c69b?w=40&h=40&fit=crop&crop=center"
+                   alt="milestones" className="w-6 h-6 rounded-full" />
+              Go-to-Market Strategy
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Row 1 */}
+              <div className="bg-green-50 p-4 rounded-lg">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-gray-800 font-semibold">Artist-First Approach</span>
+                </div>
+                <p className="text-gray-600 text-sm">Leverage relationships with high-profile stars (e.g., Lady Gaga)</p>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span className="text-gray-800 font-semibold">Flagship Tours Launch</span>
+                </div>
+                <p className="text-gray-600 text-sm">Media coverage → fan adoption → viral growth</p>
+              </div>
+              {/* Row 2 */}
+              <div className="bg-purple-50 p-4 rounded-lg">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                  <span className="text-gray-800 font-semibold">Global Expansion</span>
+                </div>
+                <p className="text-gray-600 text-sm">Venues, festivals, and regional markets worldwide</p>
+              </div>
+              <div className="bg-orange-50 p-4 rounded-lg">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                  <span className="text-gray-800 font-semibold">Regulatory Partnerships</span>
+                </div>
+                <p className="text-gray-600 text-sm">Charities and regulators ensure compliance</p>
               </div>
             </div>
           </div>
@@ -524,7 +591,7 @@ export default function InvestorPitch() {
                     <span className="font-bold text-orange-600 text-lg">3.5-7%</span>
                   </div>
                   <div className="flex justify-between items-center border-t-2 pt-4 mt-4">
-                    <span className="text-gray-800 font-semibold text-lg">Give Back:</span>
+                    <span className="text-gray-800 font-semibold text-lg">GiveLove:</span>
                     <span className="font-bold text-green-600 text-lg">{revenueModel.platformFee}% + ${revenueModel.fixedFee}</span>
                   </div>
                 </div>
@@ -721,13 +788,13 @@ export default function InvestorPitch() {
               </thead>
               <tbody>
                 {competitorData.map((comp, i) => (
-                  <tr key={i} className={comp.name === 'Give Back' ? 'bg-green-50' : ''}>
+                  <tr key={i} className={comp.name === 'GiveLove' ? 'bg-green-50' : ''}>
                     <td className="border p-3 font-semibold text-gray-800">{comp.name}</td>
                     <td className="border p-3 text-gray-700">{comp.marketShare}%</td>
                     <td className="border p-3 text-gray-700">{comp.fees}</td>
                     <td className="border p-3 text-gray-700">{comp.charity}</td>
                     <td className="border p-3 text-gray-700">
-                      {comp.name === 'Give Back' ? '✅ Full' : '❌ Limited'}
+                      {comp.name === 'GiveLove' ? '✅ Full' : '❌ Limited'}
                     </td>
                   </tr>
                 ))}
@@ -840,7 +907,7 @@ export default function InvestorPitch() {
 
           <div className="mt-6 text-center text-sm text-gray-500">
             <p>For investor inquiries, contact:</p>
-            <p className="font-medium">investors@givebacktickets.com</p>
+            <p className="font-medium">investors@givelovetickets.com</p>
           </div>
         </motion.div>
       </div>
@@ -852,7 +919,7 @@ export default function InvestorPitch() {
       {/* Header */}
       <header className="bg-gradient-to-r from-primary to-brand-500 text-white p-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-bold">Give Back Ticketing - Investor Presentation</h1>
+          <h1 className="text-xl font-bold">GiveLove Ticketing - Investor Presentation</h1>
           <div className="text-sm">
             Slide {currentSlide + 1} of {slides.length}
           </div>

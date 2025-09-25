@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, MapPin, Calendar, Clock, Users, Plus, Minus } from 'lucide-react';
 import { calculateTicketPricing } from '../../../utils/ticketPricing';
 import SeatMap from '../../../components/venue/SeatMap';
+import { useSimulation } from '../../../contexts/SimulationContext';
 
 interface TicketType {
   id: string;
@@ -42,6 +43,7 @@ export default function LadyGagaEventPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState<SelectedSeat[]>([]);
   const [showSeatMap, setShowSeatMap] = useState(false);
+  const { purchaseSeats } = useSimulation();
 
   const artistSlug = 'lady-gaga';
 
@@ -205,6 +207,21 @@ export default function LadyGagaEventPage() {
       const result = await response.json();
 
       if (result.success) {
+        // Record purchased seats in simulation context
+        if (selectedSeats.length > 0) {
+          const purchasedSeats = selectedSeats.map(seat => ({
+            id: seat.id,
+            artistSlug,
+            venueLayout: 'klcc-arena',
+            section: seat.section,
+            row: seat.row,
+            number: seat.number,
+            ticketTypeId: seat.ticketTypeId,
+            purchaseTimestamp: Date.now()
+          }));
+          purchaseSeats(purchasedSeats);
+        }
+
         // Store order data in sessionStorage for confirmation page
         sessionStorage.setItem('orderData', JSON.stringify(result.order));
 
@@ -353,6 +370,7 @@ export default function LadyGagaEventPage() {
           {/* Seat Map */}
           <SeatMap
             venueLayout="klcc-arena"
+            artistSlug={artistSlug}
             ticketTypes={ticketTypes}
             onSeatSelection={handleSeatSelection}
             maxSeats={8}

@@ -18,9 +18,11 @@ import {
   Save,
   RefreshCw,
   Eye,
-  EyeOff
+  EyeOff,
+  Zap
 } from 'lucide-react';
 import AdminPasswordProtection from '../../components/AdminPasswordProtection';
+import SimulationControls from '../../components/admin/SimulationControls';
 
 interface PlatformSettings {
   id: string;
@@ -58,7 +60,7 @@ interface ArtistRevenueData {
 function AdminDashboard() {
   // State management
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'settings' | 'artists'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'settings' | 'artists' | 'simulation'>('dashboard');
   const [showSettingsPassword, setShowSettingsPassword] = useState(false);
 
   // Settings state
@@ -268,7 +270,8 @@ function AdminDashboard() {
           {[
             { id: 'dashboard', label: 'Revenue Dashboard', icon: BarChart3 },
             { id: 'settings', label: 'Platform Settings', icon: Settings },
-            { id: 'artists', label: 'Artist Analytics', icon: Users }
+            { id: 'artists', label: 'Artist Analytics', icon: Users },
+            { id: 'simulation', label: 'Ticket Simulation', icon: Zap }
           ].map(tab => (
             <button
               key={tab.id}
@@ -615,6 +618,37 @@ function AdminDashboard() {
                   </tbody>
                 </table>
               </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Simulation Tab */}
+        {activeTab === 'simulation' && (
+          <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-8 bg-gray-800 rounded-xl"
+            >
+              <h3 className="text-2xl font-semibold mb-6 flex items-center gap-2">
+                <Zap className="w-6 h-6 text-primary" />
+                Ticket Purchase Simulation
+              </h3>
+
+              <div className="mb-6">
+                <p className="text-gray-300 mb-4">
+                  Control the simulation of ticket purchases across all events. Use this to test how seat availability
+                  updates in real-time and demonstrate the platform's functionality.
+                </p>
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+                  <p className="text-amber-300 text-sm">
+                    <strong>Note:</strong> Simulated purchases are stored locally and persist across page reloads.
+                    Use the reset button to clear all simulated data when demonstrations are complete.
+                  </p>
+                </div>
+              </div>
+
+              <SimulationControls />
             </motion.div>
           </div>
         )}

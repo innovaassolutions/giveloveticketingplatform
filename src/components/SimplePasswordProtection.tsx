@@ -14,7 +14,7 @@ interface SimplePasswordProtectionProps {
 
 export default function SimplePasswordProtection({
   children,
-  password = 'giveback2025',
+  password = 'givelovek2025',
   storageKey = 'simpleAdminAuthenticated',
   title = 'Admin Access',
   description = 'Enter the admin password to continue'

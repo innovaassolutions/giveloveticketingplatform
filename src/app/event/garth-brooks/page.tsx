@@ -353,6 +353,7 @@ export default function GarthBrooksEventPage() {
           {/* Seat Map */}
           <SeatMap
             venueLayout="madison-square-garden"
+            artistSlug={artistSlug}
             ticketTypes={ticketTypes}
             onSeatSelection={handleSeatSelection}
             maxSeats={8}

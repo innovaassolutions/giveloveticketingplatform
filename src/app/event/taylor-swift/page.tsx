@@ -353,6 +353,7 @@ export default function TaylorSwiftEventPage() {
           {/* Seat Map */}
           <SeatMap
             venueLayout="metlife-stadium"
+            artistSlug={artistSlug}
             ticketTypes={ticketTypes}
             onSeatSelection={handleSeatSelection}
             maxSeats={8}

@@ -5,6 +5,7 @@ import { PricingProvider } from "../contexts/PricingContext";
 import { MerchandiseProvider } from "../contexts/MerchandiseContext";
 import { UnifiedCartProvider } from "../contexts/UnifiedCartContext";
 import { AdminAuthProvider } from "../contexts/AdminAuthContext";
+import { SimulationProvider } from "../contexts/SimulationContext";
 
 const luxuriousScript = Luxurious_Script({
   weight: "400",
@@ -33,15 +34,17 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${luxuriousScript.variable} font-sans antialiased bg-background text-foreground`}>
         <AdminAuthProvider>
-          <PricingProvider>
-            <MerchandiseProvider>
-              <UnifiedCartProvider>
-                <div className="min-h-screen">
-                  {children}
-                </div>
-              </UnifiedCartProvider>
-            </MerchandiseProvider>
-          </PricingProvider>
+          <SimulationProvider>
+            <PricingProvider>
+              <MerchandiseProvider>
+                <UnifiedCartProvider>
+                  <div className="min-h-screen">
+                    {children}
+                  </div>
+                </UnifiedCartProvider>
+              </MerchandiseProvider>
+            </PricingProvider>
+          </SimulationProvider>
         </AdminAuthProvider>
       </body>
     </html>

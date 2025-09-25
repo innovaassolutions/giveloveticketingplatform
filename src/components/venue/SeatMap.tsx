@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useSimulation } from '../../contexts/SimulationContext';
 
 interface Seat {
   id: string;
@@ -14,6 +15,7 @@ interface Seat {
 
 interface SeatMapProps {
   venueLayout: string;
+  artistSlug: string;
   ticketTypes: Array<{
     id: string;
     name: string;
@@ -51,9 +53,10 @@ const VENUE_LAYOUTS = {
   }
 };
 
-export default function SeatMap({ venueLayout, ticketTypes, onSeatSelection, maxSeats = 8 }: SeatMapProps) {
+export default function SeatMap({ venueLayout, artistSlug, ticketTypes, onSeatSelection, maxSeats = 8 }: SeatMapProps) {
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
   const [seats, setSeats] = useState<Seat[]>([]);
+  const { isPurchased } = useSimulation();
 
   useEffect(() => {
     // Generate seats based on venue layout
@@ -79,7 +82,11 @@ export default function SeatMap({ venueLayout, ticketTypes, onSeatSelection, max
             let status: 'available' | 'selected' | 'unavailable';
             let ticketTypeId: string;
 
-            if (isVipRow && vipTicketType) {
+            // Check if this specific seat was purchased globally first
+            if (isPurchased(seatId, artistSlug)) {
+              status = 'unavailable';
+              ticketTypeId = isVipRow ? 'vip' : 'ga';
+            } else if (isVipRow && vipTicketType) {
               ticketTypeId = 'vip';
               status = vipSeatsGenerated < vipTicketType.available ? 'available' : 'unavailable';
               if (status === 'available') vipSeatsGenerated++;
@@ -111,7 +118,15 @@ export default function SeatMap({ venueLayout, ticketTypes, onSeatSelection, max
         for (let row = section.startRow; row < section.startRow + section.rows; row++) {
           for (let seatNum = 1; seatNum <= section.seatsPerRow; seatNum++) {
             const seatId = `${section.id}-${row}-${seatNum}`;
-            const status = seatsGenerated < availableSeats ? 'available' : 'unavailable';
+
+            // Check if this specific seat was purchased globally first
+            let status: 'available' | 'selected' | 'unavailable';
+            if (isPurchased(seatId, artistSlug)) {
+              status = 'unavailable';
+            } else {
+              status = seatsGenerated < availableSeats ? 'available' : 'unavailable';
+              if (status === 'available') seatsGenerated++;
+            }
 
             generatedSeats.push({
               id: seatId,
@@ -121,15 +136,13 @@ export default function SeatMap({ venueLayout, ticketTypes, onSeatSelection, max
               status,
               ticketTypeId: section.ticketTypeId
             });
-
-            seatsGenerated++;
           }
         }
       }
     });
 
     setSeats(generatedSeats);
-  }, [venueLayout, ticketTypes]);
+  }, [venueLayout, ticketTypes, artistSlug, isPurchased]);
 
   const handleSeatClick = (seat: Seat) => {
     if (seat.status === 'unavailable') return;
