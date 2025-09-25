@@ -446,8 +446,8 @@ export default function InvestorPitch() {
               </div>
               <div className="relative">
                 <img
-                  src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop&crop=center"
-                  alt="Concert performance with crowd"
+                  src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=400&h=250&fit=crop&crop=center"
+                  alt="Charity volunteers helping community"
                   className="w-full h-48 object-cover rounded-xl"
                 />
               </div>
