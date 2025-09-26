@@ -12,79 +12,88 @@ export default function SimulationControls({}: SimulationControlsProps) {
   const [showConfirmReset, setShowConfirmReset] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [ticketsPerMinute, setTicketsPerMinute] = useState(5);
-  const [simulationInterval, setSimulationInterval] = useState<NodeJS.Timeout | null>(null);
 
   const { resetAllPurchases, getTotalPurchasedSeats, purchaseSeats } = useSimulation();
   const totalPurchased = getTotalPurchasedSeats();
 
-  // Artists and their venue layouts for simulation
-  const artists = [
-    { slug: 'taylor-swift', venueLayout: 'metlife-stadium', name: 'Taylor Swift' },
-    { slug: 'lady-gaga', venueLayout: 'klcc-arena', name: 'Lady Gaga' },
-    { slug: 'dolly-parton', venueLayout: 'grand-ole-opry', name: 'Dolly Parton' },
-    { slug: 'garth-brooks', venueLayout: 'madison-square-garden', name: 'Garth Brooks' }
-  ];
 
-  // Cleanup interval on unmount
+  // Check simulation state on mount
   useEffect(() => {
-    return () => {
-      if (simulationInterval) {
-        clearInterval(simulationInterval);
-      }
-    };
-  }, [simulationInterval]);
+    checkSimulationState();
 
-  // Generate random seats for simulation
-  const generateRandomSeats = (artistSlug: string, venueLayout: string, count: number) => {
-    const seats = [];
-    for (let i = 0; i < count; i++) {
-      const row = Math.floor(Math.random() * 20) + 1;
-      const seatNum = Math.floor(Math.random() * 24) + 1;
-      const seatId = `main-${row}-${seatNum}`;
+    // Poll for simulation state updates
+    const interval = setInterval(checkSimulationState, 5000);
 
-      seats.push({
-        id: seatId,
-        artistSlug,
-        venueLayout,
-        section: 'Main Section',
-        row: row.toString(),
-        number: seatNum,
-        ticketTypeId: row <= 3 ? 'vip' : 'ga',
-        purchaseTimestamp: Date.now()
-      });
+    return () => clearInterval(interval);
+  }, []);
+
+  const checkSimulationState = async () => {
+    // Only run on client side
+    if (typeof window === 'undefined') {
+      return;
     }
-    return seats;
+
+    try {
+      const response = await fetch('/api/simulation?action=state');
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setIsRunning(result.state.isRunning);
+          setTicketsPerMinute(result.state.ticketsPerMinute || 5);
+        }
+      } else {
+        console.warn('Failed to get simulation state:', response.status);
+      }
+    } catch (error) {
+      console.error('Failed to check simulation state:', error);
+    }
   };
 
-  const startSimulation = () => {
+
+  const startSimulation = async () => {
     if (isRunning) return;
 
-    setIsRunning(true);
+    try {
+      const response = await fetch('/api/simulation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'start',
+          ticketsPerMinute
+        })
+      });
 
-    const intervalMs = (60 / ticketsPerMinute) * 1000; // Convert tickets per minute to interval
-
-    const interval = setInterval(() => {
-      // Pick a random artist
-      const randomArtist = artists[Math.floor(Math.random() * artists.length)];
-
-      // Generate 1-3 random seat purchases
-      const ticketCount = Math.floor(Math.random() * 3) + 1;
-      const newSeats = generateRandomSeats(randomArtist.slug, randomArtist.venueLayout, ticketCount);
-
-      purchaseSeats(newSeats);
-    }, intervalMs);
-
-    setSimulationInterval(interval);
+      if (response.ok) {
+        setIsRunning(true);
+        console.log(`Started server-side simulation at ${ticketsPerMinute} tickets/min`);
+      } else {
+        console.error('Failed to start simulation');
+      }
+    } catch (error) {
+      console.error('Error starting simulation:', error);
+    }
   };
 
-  const stopSimulation = () => {
+  const stopSimulation = async () => {
     if (!isRunning) return;
 
-    setIsRunning(false);
+    try {
+      const response = await fetch('/api/simulation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'stop'
+        })
+      });
 
-    if (simulationInterval) {
-      clearInterval(simulationInterval);
-      setSimulationInterval(null);
+      if (response.ok) {
+        setIsRunning(false);
+        console.log('Stopped server-side simulation');
+      } else {
+        console.error('Failed to stop simulation');
+      }
+    } catch (error) {
+      console.error('Error stopping simulation:', error);
     }
   };
 
@@ -97,10 +106,15 @@ export default function SimulationControls({}: SimulationControlsProps) {
     }
 
     // Add a small delay for better UX
-    setTimeout(() => {
-      resetAllPurchases();
-      setShowConfirmReset(false);
-      setIsResetting(false);
+    setTimeout(async () => {
+      try {
+        await resetAllPurchases();
+      } catch (error) {
+        console.error('Reset failed:', error);
+      } finally {
+        setShowConfirmReset(false);
+        setIsResetting(false);
+      }
     }, 1000);
   };
 
@@ -267,9 +281,10 @@ export default function SimulationControls({}: SimulationControlsProps) {
           How It Works
         </h4>
         <ul className="text-blue-300/80 text-sm space-y-1">
-          <li>• Simulation randomly purchases seats across all artist events</li>
+          <li>• Server-side simulation randomly purchases seats across all artist events</li>
           <li>• Purchased seats become unavailable on seat maps in real-time</li>
-          <li>• Data persists across page reloads using localStorage</li>
+          <li>• Simulation continues running even when you navigate away from admin</li>
+          <li>• Data persists in database across sessions and page reloads</li>
           <li>• Use Reset to clear all simulated data for fresh demonstrations</li>
         </ul>
       </div>
