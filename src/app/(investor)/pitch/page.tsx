@@ -149,18 +149,11 @@ export default function InvestorPitch() {
               <img src="https://images.unsplash.com/photo-1633158829875-e5316a358c6f?w=60&h=60&fit=crop&crop=center"
                    alt="funding" className="w-12 h-12 mx-auto mb-3 rounded-full opacity-80" />
               <h3 className="text-lg font-bold mb-3">Seeking</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-white/20 px-2 py-2 rounded-lg backdrop-blur-sm">
-                  <div className="text-sm font-bold">Lean Path</div>
-                  <div className="text-lg font-bold">$7M Raise</div>
-                </div>
-                <div className="bg-white/20 px-2 py-2 rounded-lg backdrop-blur-sm">
-                  <div className="text-sm font-bold">Aggressive Path</div>
-                  <div className="text-lg font-bold">$12M Raise</div>
-                </div>
+              <div className="bg-white/20 px-4 py-3 rounded-lg backdrop-blur-sm">
+                <div className="text-2xl font-bold">$2M Raise</div>
+                <div className="text-blue-100 text-sm mt-2">Seed/Series A</div>
+                <div className="text-blue-200 text-xs mt-1">Scale technology & compliance</div>
               </div>
-              <div className="text-blue-100 text-sm mt-2">Seed/Series A</div>
-              <div className="text-blue-200 text-xs mt-1">Scale technology & compliance</div>
             </div>
             <div className="bg-gradient-to-br from-green-500 to-teal-600 p-6 rounded-xl text-white text-center shadow-lg">
               <img src="https://images.unsplash.com/photo-1460518451285-97b6aa326961?w=60&h=60&fit=crop&crop=center"
@@ -180,90 +173,52 @@ export default function InvestorPitch() {
             </div>
           </div>
 
-          {/* Two Funding Scenarios - Side by Side */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Scenario 1: Lean Path ($7M Raise) */}
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-lg">
+          {/* Funding Distribution for $2M Raise */}
+          <div className="flex justify-center">
+            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-lg max-w-md w-full">
               <h3 className="text-xl font-bold mb-4 text-gray-800 text-center">
-                Scenario 1: Lean Path ($7M Raise)
+                Planned Distribution ($2M Raise)
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-2 bg-blue-50 rounded-lg">
                   <span className="text-gray-700 font-medium text-sm">Development & Technology</span>
                   <div className="text-right">
                     <span className="font-bold text-blue-600">40%</span>
-                    <div className="text-xs text-gray-500">$2.8M</div>
+                    <div className="text-xs text-gray-500">$0.8M</div>
                   </div>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-red-50 rounded-lg">
                   <span className="text-gray-700 font-medium text-sm">Compliance & Legal</span>
                   <div className="text-right">
                     <span className="font-bold text-red-600">35%</span>
-                    <div className="text-xs text-gray-500">$2.45M</div>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-green-50 rounded-lg">
-                  <span className="text-gray-700 font-medium text-sm">Marketing & Artist Onboarding</span>
-                  <div className="text-right">
-                    <span className="font-bold text-green-600">15%</span>
-                    <div className="text-xs text-gray-500">$1.05M</div>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-purple-50 rounded-lg">
-                  <span className="text-gray-700 font-medium text-sm">Operations & Infrastructure</span>
-                  <div className="text-right">
-                    <span className="font-bold text-purple-600">10%</span>
                     <div className="text-xs text-gray-500">$0.7M</div>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Scenario 2: Aggressive Path ($12M Raise) */}
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-lg">
-              <h3 className="text-xl font-bold mb-4 text-gray-800 text-center">
-                Scenario 2: Aggressive Path ($12M Raise)
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-2 bg-blue-50 rounded-lg">
-                  <span className="text-gray-700 font-medium text-sm">Development & Technology</span>
-                  <div className="text-right">
-                    <span className="font-bold text-blue-600">40%</span>
-                    <div className="text-xs text-gray-500">$4.8M</div>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-red-50 rounded-lg">
-                  <span className="text-gray-700 font-medium text-sm">Compliance & Legal</span>
-                  <div className="text-right">
-                    <span className="font-bold text-red-600">35%</span>
-                    <div className="text-xs text-gray-500">$4.2M</div>
-                  </div>
-                </div>
                 <div className="flex justify-between items-center p-2 bg-green-50 rounded-lg">
                   <span className="text-gray-700 font-medium text-sm">Marketing & Artist Onboarding</span>
                   <div className="text-right">
                     <span className="font-bold text-green-600">15%</span>
-                    <div className="text-xs text-gray-500">$1.8M</div>
+                    <div className="text-xs text-gray-500">$0.3M</div>
                   </div>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-purple-50 rounded-lg">
                   <span className="text-gray-700 font-medium text-sm">Operations & Infrastructure</span>
                   <div className="text-right">
                     <span className="font-bold text-purple-600">10%</span>
-                    <div className="text-xs text-gray-500">$1.2M</div>
+                    <div className="text-xs text-gray-500">$0.2M</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Note about scenarios */}
+          {/* Note about funding */}
           <div className="text-center bg-gray-50 p-4 rounded-lg">
             <p className="text-gray-700 font-medium">
-              Both scenarios deliver strong financial returns + unparalleled social impact.
+              Our $2M raise delivers strong financial returns + unparalleled social impact.
             </p>
             <p className="text-gray-600 text-sm">
-              The scale of our raise determines the speed of our global rollout.
+              Focused approach ensuring efficient capital allocation and sustainable growth.
             </p>
           </div>
 
