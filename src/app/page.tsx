@@ -239,7 +239,7 @@ export default function Home() {
               {/* Glass panel inner glow */}
               <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
 
-              <div className="relative p-8 pt-20 h-full">
+              <div className="relative p-8 pt-20 h-full overflow-y-auto">
                 <nav className="space-y-1">
                   <Link
                     href="/event/lady-gaga-kl"
@@ -248,16 +248,6 @@ export default function Home() {
                   >
                     <div className="flex items-center justify-between">
                       <span>Book Tickets</span>
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
-                  </Link>
-                  <Link
-                    href="/artist"
-                    className="group block p-4 rounded-2xl text-lg font-medium text-white/90 hover:text-white hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/10"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span>Artist</span>
                       <div className="w-1.5 h-1.5 rounded-full bg-brand-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </div>
                   </Link>
@@ -271,26 +261,86 @@ export default function Home() {
                       <div className="w-1.5 h-1.5 rounded-full bg-brand-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </div>
                   </Link>
-                  <Link
-                    href="/charity"
-                    className="group block p-4 rounded-2xl text-lg font-medium text-white/90 hover:text-white hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/10"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span>Charity</span>
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
-                  </Link>
-                  <Link
-                    href="/pitch"
-                    className="group block p-4 rounded-2xl text-lg font-medium text-white/90 hover:text-white hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/10"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span>Investors</span>
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
-                  </Link>
+
+                  {/* Artist Portals Section */}
+                  <div className="border-t border-white/10 pt-4 mt-4">
+                    <p className="text-white/50 text-xs uppercase tracking-wider px-4 py-2 font-medium">Artist Portals</p>
+                    <Link
+                      href="/artist/lady-gaga"
+                      className="group block p-3 rounded-xl text-base font-medium text-white/80 hover:text-white hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/10 ml-2"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>Lady Gaga</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                    </Link>
+                    <Link
+                      href="/artist/garth-brooks"
+                      className="group block p-3 rounded-xl text-base font-medium text-white/80 hover:text-white hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/10 ml-2"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>Garth Brooks</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                    </Link>
+                    <Link
+                      href="/artist/taylor-swift"
+                      className="group block p-3 rounded-xl text-base font-medium text-white/80 hover:text-white hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/10 ml-2"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>Taylor Swift</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-pink-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                    </Link>
+                    <Link
+                      href="/artist/dolly-parton"
+                      className="group block p-3 rounded-xl text-base font-medium text-white/80 hover:text-white hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/10 ml-2"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>Dolly Parton</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                    </Link>
+                  </div>
+
+                  {/* General Admin Section */}
+                  <div className="border-t border-white/10 pt-4 mt-4">
+                    <p className="text-white/50 text-xs uppercase tracking-wider px-4 py-2 font-medium">General Admin</p>
+                    <Link
+                      href="/admin"
+                      className="group block p-3 rounded-xl text-base font-medium text-white/80 hover:text-white hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/10 ml-2"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>Platform Admin</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                    </Link>
+                    <Link
+                      href="/charity"
+                      className="group block p-3 rounded-xl text-base font-medium text-white/80 hover:text-white hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/10 ml-2"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>Charity Dashboard</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                    </Link>
+                    <Link
+                      href="/pitch"
+                      className="group block p-3 rounded-xl text-base font-medium text-white/80 hover:text-white hover:bg-white/5 transition-all duration-300 border border-transparent hover:border-white/10 ml-2"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>Investor Portal</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                    </Link>
+                  </div>
                 </nav>
 
                 {/* Bottom accent line */}
