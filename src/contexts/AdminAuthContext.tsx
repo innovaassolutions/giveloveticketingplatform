@@ -11,7 +11,7 @@ interface AdminUser {
 interface AdminAuthContextType {
   isAuthenticated: (portal?: string) => boolean;
   currentUser: AdminUser | null;
-  authenticate: (username: string, password: string, portal?: string) => boolean;
+  authenticate: (username: string, password: string, simpleMode?: boolean | string, portal?: string) => boolean;
   logout: (portal?: string) => void;
   getCurrentUser: (portal?: string) => AdminUser | null;
 }
@@ -35,11 +35,11 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
 
   // Define admin accounts with portal mapping
   const ADMIN_ACCOUNTS: AdminUser[] = [
-    { username: 'ladyg', password: 'giveback2025', role: 'lady-gaga' },
-    { username: 'garthb', password: 'giveback2025', role: 'garth-brooks' },
-    { username: 'taylors', password: 'giveback2025', role: 'taylor-swift' },
-    { username: 'dollyp', password: 'giveback2025', role: 'dolly-parton' },
-    { username: 'admin', password: 'giveback2025', role: 'general' }, // For charity/investor access
+    { username: 'ladyg', password: 'givelove2025', role: 'lady-gaga' },
+    { username: 'garthb', password: 'givelove2025', role: 'garth-brooks' },
+    { username: 'taylors', password: 'givelove2025', role: 'taylor-swift' },
+    { username: 'dollyp', password: 'givelove2025', role: 'dolly-parton' },
+    { username: 'admin', password: 'givelove2025', role: 'general' }, // For charity/investor access
   ];
 
   // Portal mapping for backwards compatibility
@@ -81,14 +81,30 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
     return portalSessions[targetPortal] || null;
   };
 
-  const authenticate = (username: string, password: string, portal?: string): boolean => {
+  const authenticate = (username: string, password: string, simpleMode?: boolean | string, portal?: string): boolean => {
+    // Handle backward compatibility: if simpleMode is a string, it's actually the portal parameter
+    const isSimple = typeof simpleMode === 'boolean' ? simpleMode : false;
+    const targetPortal = (typeof simpleMode === 'string' ? simpleMode : portal) || getPortalFromPath();
+
+    // In simple mode, only check password (use 'admin' account with 'general' role)
+    if (isSimple) {
+      const generalUser = ADMIN_ACCOUNTS.find(account => account.role === 'general');
+      if (generalUser && password === generalUser.password) {
+        setPortalSessions(prev => ({
+          ...prev,
+          [targetPortal]: generalUser
+        }));
+        return true;
+      }
+      return false;
+    }
+
+    // Standard username + password authentication
     const user = ADMIN_ACCOUNTS.find(
       account => account.username === username && account.password === password
     );
 
     if (user) {
-      const targetPortal = portal || getPortalFromPath();
-
       // Check if user has permission for this portal
       if (user.role !== 'general' && user.role !== targetPortal) {
         return false; // User doesn't have access to this specific portal

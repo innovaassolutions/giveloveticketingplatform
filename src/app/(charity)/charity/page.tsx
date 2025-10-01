@@ -30,7 +30,7 @@ import {
   Area,
   AreaChart
 } from 'recharts';
-import SimplePasswordProtection from '../../../components/SimplePasswordProtection';
+import AdminPasswordProtection from '../../../components/AdminPasswordProtection';
 
 interface CharityEvent {
   id: string;
@@ -172,10 +172,10 @@ export default function CharityDashboard() {
   }
 
   return (
-    <SimplePasswordProtection
+    <AdminPasswordProtection
+      simpleMode={true}
       title="Charity Dashboard Access"
       description="Enter the password to access the charity dashboard"
-      storageKey="charityAuthenticated"
     >
       <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
@@ -469,6 +469,6 @@ export default function CharityDashboard() {
         </motion.div>
       </div>
     </div>
-    </SimplePasswordProtection>
+    </AdminPasswordProtection>
   );
 }

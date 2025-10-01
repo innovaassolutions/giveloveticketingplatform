@@ -804,6 +804,148 @@ export default function InvestorPitch() {
           </div>
         </div>
       )
+    },
+    {
+      id: 9,
+      title: "Enterprise Architecture",
+      subtitle: "Ticketmaster-Scale Infrastructure for Global Growth",
+      content: (
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-8 rounded-2xl border-2 border-blue-200">
+            {/* Architecture Diagram Embed */}
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <iframe
+                src="/Enterprise Architecture Diagram.html"
+                className="w-full h-[600px] border-0"
+                title="Enterprise Architecture Diagram"
+              />
+            </div>
+
+            {/* Architecture Highlights */}
+            <div className="mt-6 grid grid-cols-2 gap-6">
+              <div className="bg-white p-6 rounded-lg border-l-4 border-blue-500">
+                <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-blue-500" />
+                  Multi-Region Deployment
+                </h4>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li>• Active-passive architecture (US-EAST primary, US-WEST standby)</li>
+                  <li>• Automatic failover in &lt;60 seconds</li>
+                  <li>• Cross-region database replication</li>
+                  <li>• Global CDN with 300+ edge locations</li>
+                </ul>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg border-l-4 border-green-500">
+                <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-green-500" />
+                  Scalability & Performance
+                </h4>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li>• Auto-scaling from 10 to 1,000+ instances</li>
+                  <li>• Serverless-first architecture</li>
+                  <li>• Multi-tier caching (90%+ hit ratio)</li>
+                  <li>• Aurora PostgreSQL with read replicas</li>
+                </ul>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg border-l-4 border-purple-500">
+                <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <Lock className="w-5 h-5 text-purple-500" />
+                  Security & Compliance
+                </h4>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li>• PCI DSS Level 1 compliance roadmap</li>
+                  <li>• SOC 2 Type II certification path</li>
+                  <li>• DDoS protection (100+ Tbps capacity)</li>
+                  <li>• Defense-in-depth security (7 layers)</li>
+                </ul>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg border-l-4 border-orange-500">
+                <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <Target className="w-5 h-5 text-orange-500" />
+                  Cost Optimization
+                </h4>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li>• Serverless pay-per-use pricing</li>
+                  <li>• $4.5K/month at 10K users/day</li>
+                  <li>• $83K/month at 1M users/day</li>
+                  <li>• Scales with revenue (3-4.5% of GMV)</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Infrastructure Investment Summary */}
+            <div className="mt-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-xl">
+              <h4 className="text-xl font-bold mb-4 text-center">Infrastructure Investment Breakdown</h4>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold">$4.5K/mo</div>
+                  <div className="text-sm opacity-90">Low Traffic (10K users/day)</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">$20K/mo</div>
+                  <div className="text-sm opacity-90">Medium Traffic (100K users/day)</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">$83K/mo</div>
+                  <div className="text-sm opacity-90">High Traffic (1M users/day)</div>
+                </div>
+              </div>
+              <p className="text-center mt-4 text-sm opacity-90">
+                Infrastructure costs scale with usage, maintaining healthy 3-4.5% of GMV ratio
+              </p>
+            </div>
+          </div>
+
+          {/* Technology Stack Summary */}
+          <div className="bg-gray-50 p-6 rounded-xl">
+            <h4 className="font-bold text-gray-800 mb-4 text-center">Enterprise Technology Stack</h4>
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div>
+                <div className="font-semibold text-gray-700 mb-2">Application Layer</div>
+                <ul className="space-y-1 text-gray-600">
+                  <li>• Next.js 15 (Vercel Edge)</li>
+                  <li>• AWS Lambda (serverless)</li>
+                  <li>• TypeScript + React 19</li>
+                </ul>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-700 mb-2">Data Layer</div>
+                <ul className="space-y-1 text-gray-600">
+                  <li>• Aurora PostgreSQL (Serverless v2)</li>
+                  <li>• Redis (Upstash) for caching</li>
+                  <li>• S3 + Athena for analytics</li>
+                </ul>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-700 mb-2">Security & Monitoring</div>
+                <ul className="space-y-1 text-gray-600">
+                  <li>• Cloudflare Enterprise CDN</li>
+                  <li>• Stripe/Adyen payments</li>
+                  <li>• Datadog APM + Sentry</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Call to Action */}
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 p-8 rounded-xl border-2 border-green-200 text-center">
+            <h4 className="text-2xl font-bold text-gray-800 mb-3">
+              Built for Scale, Ready for Investors
+            </h4>
+            <p className="text-gray-700 text-lg max-w-3xl mx-auto">
+              Our enterprise-grade architecture ensures reliability, security, and scalability
+              from day one, giving investors confidence in our technical foundation and
+              ability to capture market share rapidly.
+            </p>
+            <div className="mt-4 text-sm text-gray-600">
+              📄 Full architecture documentation available in ENTERPRISE_ARCHITECTURE.md
+            </div>
+          </div>
+        </div>
+      )
     }
   ];
 

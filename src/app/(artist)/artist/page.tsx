@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowLeft, DollarSign, Users, TrendingUp, Heart, Settings, Calendar } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from 'recharts';
-import SimplePasswordProtection from '../../../components/SimplePasswordProtection';
+import AdminPasswordProtection from '../../../components/AdminPasswordProtection';
 
 interface EventMetrics {
   id: string;
@@ -107,10 +107,10 @@ export default function ArtistDashboard() {
   }
 
   return (
-    <SimplePasswordProtection
+    <AdminPasswordProtection
+      simpleMode={true}
       title="General Artist Dashboard Access"
       description="Enter the password to access the general artist dashboard"
-      storageKey="generalArtistAuthenticated"
     >
       <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
@@ -390,6 +390,6 @@ export default function ArtistDashboard() {
         </motion.div>
       </div>
     </div>
-    </SimplePasswordProtection>
+    </AdminPasswordProtection>
   );
 }

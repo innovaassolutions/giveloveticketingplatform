@@ -8,9 +8,18 @@ import { useAdminAuth } from '../contexts/AdminAuthContext';
 interface AdminPasswordProtectionProps {
   children: React.ReactNode;
   requiredRole?: string; // Optional role restriction
+  simpleMode?: boolean; // When true, only shows password field (no username)
+  title?: string; // Custom title for simple mode
+  description?: string; // Custom description for simple mode
 }
 
-export default function AdminPasswordProtection({ children, requiredRole }: AdminPasswordProtectionProps) {
+export default function AdminPasswordProtection({
+  children,
+  requiredRole,
+  simpleMode = false,
+  title = 'Admin Access',
+  description = 'Enter your username and password to continue'
+}: AdminPasswordProtectionProps) {
   const { isAuthenticated, currentUser, authenticate, logout } = useAdminAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -34,10 +43,10 @@ export default function AdminPasswordProtection({ children, requiredRole }: Admi
 
     // Add a small delay for better UX
     setTimeout(() => {
-      const success = authenticate(username, password);
+      const success = authenticate(username, password, simpleMode);
       if (!success) {
-        setError('Incorrect username or password. Please try again.');
-        setUsername('');
+        setError(simpleMode ? 'Incorrect password. Please try again.' : 'Incorrect username or password. Please try again.');
+        if (!simpleMode) setUsername('');
         setPassword('');
       }
       setIsLoading(false);
@@ -81,9 +90,9 @@ export default function AdminPasswordProtection({ children, requiredRole }: Admi
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-600/20 backdrop-blur-sm border border-purple-500/30 mb-4">
               <Lock className="w-8 h-8 text-purple-400" />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Admin Access</h1>
-            <p className="text-white/70">Enter your username and password to continue</p>
-            {portalName && (
+            <h1 className="text-2xl font-bold text-white mb-2">{title}</h1>
+            <p className="text-white/70">{description}</p>
+            {portalName && !simpleMode && (
               <p className="text-purple-300 text-sm mt-2">
                 Portal: {portalName}
               </p>
@@ -91,23 +100,25 @@ export default function AdminPasswordProtection({ children, requiredRole }: Admi
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="username" className="block text-white/70 mb-2 text-sm font-medium">
-                Username
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 pl-12 text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-                  placeholder="Enter username"
-                  required
-                />
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+            {!simpleMode && (
+              <div>
+                <label htmlFor="username" className="block text-white/70 mb-2 text-sm font-medium">
+                  Username
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 pl-12 text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                    placeholder="Enter username"
+                    required
+                  />
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                </div>
               </div>
-            </div>
+            )}
 
             <div>
               <label htmlFor="password" className="block text-white/70 mb-2 text-sm font-medium">
@@ -145,7 +156,7 @@ export default function AdminPasswordProtection({ children, requiredRole }: Admi
 
             <button
               type="submit"
-              disabled={isLoading || !username || !password}
+              disabled={isLoading || (!simpleMode && !username) || !password}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-purple-600/50 disabled:to-pink-600/50 text-white py-3 rounded-xl transition-all font-medium disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
@@ -160,12 +171,20 @@ export default function AdminPasswordProtection({ children, requiredRole }: Admi
           </form>
 
           <div className="mt-6 pt-6 border-t border-white/10">
-            <p className="text-white/50 text-xs text-center mb-2">
-              Available accounts: ladyg, garthb, taylors, dollyp, admin
-            </p>
-            <p className="text-white/40 text-xs text-center">
-              All passwords: giveback2025
-            </p>
+            {!simpleMode ? (
+              <>
+                <p className="text-white/50 text-xs text-center mb-2">
+                  Available accounts: ladyg, garthb, taylors, dollyp, admin
+                </p>
+                <p className="text-white/40 text-xs text-center">
+                  All passwords: givelove2025
+                </p>
+              </>
+            ) : (
+              <p className="text-white/40 text-xs text-center">
+                Password: givelove2025
+              </p>
+            )}
           </div>
         </div>
       </motion.div>
