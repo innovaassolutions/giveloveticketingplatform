@@ -161,3 +161,12 @@ The database `filePath` field now stores Blob URLs instead of local paths:
 - [Vercel Blob Documentation](https://vercel.com/docs/storage/vercel-blob)
 - [Vercel Blob SDK on npm](https://www.npmjs.com/package/@vercel/blob)
 - [Vercel Support](https://vercel.com/support)
+# Vercel Blob Storage Configuration
+
+This project uses Vercel Blob for document storage in production.
+
+## Status
+✅ Blob store connected: `investor-documents`
+✅ Environment variable configured: `BLOB_READ_WRITE_TOKEN`
+
+Production document uploads are now fully operational.
