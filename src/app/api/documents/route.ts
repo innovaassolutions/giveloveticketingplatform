@@ -28,9 +28,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // Validate file type
-    if (file.type !== 'application/pdf') {
-      return NextResponse.json({ error: 'Only PDF files are allowed' }, { status: 400 });
+    // Validate file type (PDF or Markdown)
+    const allowedTypes = ['application/pdf', 'text/markdown', 'text/plain'];
+    const isMarkdown = file.name.endsWith('.md') || file.name.endsWith('.markdown');
+
+    if (!allowedTypes.includes(file.type) && !isMarkdown) {
+      return NextResponse.json({ error: 'Only PDF and Markdown files are allowed' }, { status: 400 });
     }
 
     // Create upload directory if it doesn't exist

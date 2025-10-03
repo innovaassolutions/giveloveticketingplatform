@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Upload, Download, FileText, X, Eye } from 'lucide-react';
 import Breadcrumbs from '@/components/investor/Breadcrumbs';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Document {
   id: string;
@@ -18,6 +20,7 @@ export default function DocumentsPage() {
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [markdownContent, setMarkdownContent] = useState<string>('');
 
   // Fetch documents on mount
   useEffect(() => {
@@ -45,9 +48,12 @@ export default function DocumentsPage() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (file.type !== 'application/pdf') {
-      alert('Please upload a PDF file');
+    // Validate file type (PDF or Markdown)
+    const isMarkdown = file.name.endsWith('.md') || file.name.endsWith('.markdown');
+    const isPdf = file.type === 'application/pdf';
+
+    if (!isPdf && !isMarkdown) {
+      alert('Please upload a PDF or Markdown (.md) file');
       return;
     }
 
@@ -122,6 +128,28 @@ export default function DocumentsPage() {
     });
   };
 
+  const isMarkdownFile = (doc: Document) => {
+    return doc.name.endsWith('.md') || doc.name.endsWith('.markdown');
+  };
+
+  // Fetch markdown content when a markdown file is selected
+  useEffect(() => {
+    const fetchMarkdownContent = async () => {
+      if (selectedDocument && isMarkdownFile(selectedDocument)) {
+        try {
+          const response = await fetch(selectedDocument.filePath);
+          const text = await response.text();
+          setMarkdownContent(text);
+        } catch (error) {
+          console.error('Error fetching markdown content:', error);
+          setMarkdownContent('Failed to load markdown content.');
+        }
+      }
+    };
+
+    fetchMarkdownContent();
+  }, [selectedDocument]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -150,7 +178,7 @@ export default function DocumentsPage() {
                 <label className="cursor-pointer">
                   <input
                     type="file"
-                    accept="application/pdf"
+                    accept="application/pdf,.md,.markdown"
                     onChange={handleFileUpload}
                     className="hidden"
                     disabled={isUploading}
@@ -183,8 +211,16 @@ export default function DocumentsPage() {
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0">
-                          <div className="w-12 h-16 bg-red-100 rounded flex items-center justify-center">
-                            <FileText className="w-6 h-6 text-red-600" />
+                          <div className={`w-12 h-16 rounded flex items-center justify-center ${
+                            isMarkdownFile(doc)
+                              ? 'bg-blue-100'
+                              : 'bg-red-100'
+                          }`}>
+                            <FileText className={`w-6 h-6 ${
+                              isMarkdownFile(doc)
+                                ? 'text-blue-600'
+                                : 'text-red-600'
+                            }`} />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -214,7 +250,7 @@ export default function DocumentsPage() {
                   <div className="text-center py-8 text-gray-500">
                     <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                     <p className="text-sm">No documents yet</p>
-                    <p className="text-xs">Upload a PDF to get started</p>
+                    <p className="text-xs">Upload a PDF or Markdown file to get started</p>
                   </div>
                 )}
               </div>
@@ -244,15 +280,27 @@ export default function DocumentsPage() {
                   </button>
                 </div>
 
-                {/* PDF Viewer */}
+                {/* Document Viewer */}
                 <div className="p-4">
-                  <div className="bg-gray-100 rounded-lg overflow-hidden" style={{ height: 'calc(100vh - 300px)' }}>
-                    <iframe
-                      src={selectedDocument.filePath}
-                      className="w-full h-full"
-                      title={selectedDocument.name}
-                    />
-                  </div>
+                  {isMarkdownFile(selectedDocument) ? (
+                    // Markdown Viewer
+                    <div className="bg-white rounded-lg overflow-auto p-8" style={{ height: 'calc(100vh - 300px)' }}>
+                      <article className="prose prose-slate max-w-none">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {markdownContent}
+                        </ReactMarkdown>
+                      </article>
+                    </div>
+                  ) : (
+                    // PDF Viewer
+                    <div className="bg-gray-100 rounded-lg overflow-hidden" style={{ height: 'calc(100vh - 300px)' }}>
+                      <iframe
+                        src={selectedDocument.filePath}
+                        className="w-full h-full"
+                        title={selectedDocument.name}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
