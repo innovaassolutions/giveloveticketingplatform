@@ -38,7 +38,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const body = await request.json();
     const { currentUplift } = body;
 
-    if (typeof currentUplift !== 'number' || currentUplift < 0 || currentUplift > 200) {
+    if (typeof currentUplift !== 'number' || currentUplift < 0) {
       return NextResponse.json({ error: 'Invalid uplift percentage' }, { status: 400 });
     }
 

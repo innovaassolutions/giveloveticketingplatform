@@ -61,6 +61,18 @@ export default function LadyGagaArtistPortal() {
   // Handle uplift changes
   const handleUpliftChange = async (newUpliftPercentage: number) => {
     try {
+      // Optimistically update local state first for instant UI feedback
+      if (artistData) {
+        setArtistData({
+          ...artistData,
+          pricing: {
+            ...artistData.pricing,
+            currentUplift: newUpliftPercentage
+          }
+        });
+      }
+
+      // Then sync to database in background
       const response = await fetch(`/api/artists/${artistSlug}`, {
         method: 'PUT',
         headers: {
@@ -71,12 +83,14 @@ export default function LadyGagaArtistPortal() {
         })
       });
 
-      if (response.ok) {
-        // Refresh artist data to get updated pricing
+      if (!response.ok) {
+        // If API call fails, revert to original data
         await fetchArtistData();
       }
     } catch (error) {
       console.error('Failed to update uplift:', error);
+      // Revert to original data on error
+      await fetchArtistData();
     }
   };
 

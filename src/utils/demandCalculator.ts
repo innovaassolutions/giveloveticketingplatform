@@ -37,7 +37,7 @@ export function calculateDemandMultiplier(eventData: any, baseUplift: number = 5
   }
 
   const finalMultiplier = demandMultiplier * timeMultiplier;
-  const suggestedUplift = Math.min(200, Math.round(baseUplift * finalMultiplier));
+  const suggestedUplift = Math.round(baseUplift * finalMultiplier);
 
   return {
     sellThroughRate: Math.round(avgSellthrough * 100),

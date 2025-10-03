@@ -77,7 +77,7 @@ export default function UpliftControl({
       {/* Charity Uplift Input */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
-          <label htmlFor="charity-uplift" className="text-lg font-semibold">Charity Uplift Percentage</label>
+          <label htmlFor="charity-uplift" className="text-lg font-semibold">Manual Uplift Control</label>
         </div>
 
         <div className="relative">
@@ -87,7 +87,6 @@ export default function UpliftControl({
                 id="charity-uplift"
                 type="number"
                 min="0"
-                max="200"
                 step="1"
                 value={percentage}
                 onChange={(e) => handleChange(Number(e.target.value))}
@@ -102,7 +101,7 @@ export default function UpliftControl({
 
           <div className="flex justify-between text-sm text-gray-400 mt-2">
             <span>Common values: 5%, 12%, 25%, 50%, 100%+</span>
-            <span>Max: 200%</span>
+            <span>No limit</span>
           </div>
         </div>
 
@@ -146,8 +145,17 @@ export default function UpliftControl({
               onClick={handleApplySuggestion}
               className="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors text-sm font-semibold"
             >
-              Apply Suggestion
+              Accept Uplift Suggestion
             </button>
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-gray-600">
+            <p className="text-xs text-gray-400 leading-relaxed">
+              <span className="font-semibold text-gray-300">Algorithm:</span> The suggested uplift is calculated by analyzing ticket sell-through rate and time-to-event urgency.
+              Demand levels (LOW/MEDIUM/HIGH/PEAK) apply multipliers of 1.0x to 2.5x to your base uplift.
+              Events within 30 days receive an additional 1.3x urgency multiplier.
+              This ensures your charity uplift maximizes donations during high-demand periods while remaining competitive when sales are slower.
+            </p>
           </div>
         </motion.div>
       )}

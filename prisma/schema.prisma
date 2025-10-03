@@ -194,3 +194,23 @@ model PlatformSettings {
 
   @@map("platform_settings")
 }
+
+// Investor documents
+model InvestorDocument {
+  id          String   @id @default(cuid())
+  name        String
+  fileName    String   // Original file name
+  filePath    String   // Path to file in storage
+  fileSize    Int      // Size in bytes
+  mimeType    String   @default("application/pdf")
+
+  // Metadata
+  uploadedBy  String?  // User who uploaded (optional)
+  description String?
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("investor_documents")
+}

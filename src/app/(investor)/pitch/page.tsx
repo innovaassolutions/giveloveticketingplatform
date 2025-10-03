@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Unlock, TrendingUp, Globe, Heart, Target, Home } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Unlock, TrendingUp, Globe, Heart, Target, Home, FileText } from 'lucide-react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import Link from 'next/link';
+import Breadcrumbs from '@/components/investor/Breadcrumbs';
 
 // Password protection
 const INVESTOR_PASSWORD = 'givelove2025'; // Change this to your preferred password
@@ -21,6 +23,16 @@ export default function InvestorPitch() {
   const [showPassword, setShowPassword] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loginError, setLoginError] = useState('');
+
+  // Check for stored authentication on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const authStatus = localStorage.getItem('investorAuth');
+      if (authStatus === 'authenticated') {
+        setIsAuthenticated(true);
+      }
+    }
+  }, []);
 
   // Revenue Model Data - Updated from Pitch Deck MD
   const revenueModel = {
@@ -64,6 +76,10 @@ export default function InvestorPitch() {
     if (password === INVESTOR_PASSWORD) {
       setIsAuthenticated(true);
       setLoginError('');
+      // Store authentication in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('investorAuth', 'authenticated');
+      }
     } else {
       setLoginError('Incorrect password. Please try again.');
     }
@@ -1017,14 +1033,29 @@ export default function InvestorPitch() {
       <header className="bg-gradient-to-r from-primary to-brand-500 text-white p-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <h1 className="text-xl font-bold">GiveLove Ticketing - Investor Presentation</h1>
-          <div className="text-sm">
-            Slide {currentSlide + 1} of {slides.length}
+          <div className="flex items-center gap-4">
+            <Link
+              href="/documents"
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-sm"
+            >
+              <FileText className="w-4 h-4" />
+              Documents
+            </Link>
+            <div className="text-sm">
+              Slide {currentSlide + 1} of {slides.length}
+            </div>
           </div>
         </div>
       </header>
 
       {/* Slide Content */}
       <main className="max-w-7xl mx-auto p-8 pb-20">
+        {/* Breadcrumbs */}
+        <Breadcrumbs
+          items={[
+            { label: 'Investor Pitch' }
+          ]}
+        />
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
