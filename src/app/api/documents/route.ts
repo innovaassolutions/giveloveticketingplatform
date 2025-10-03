@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { put } from '@vercel/blob';
 
 export async function GET() {
   try {
@@ -36,31 +34,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Only PDF and Markdown files are allowed' }, { status: 400 });
     }
 
-    // Create upload directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'documents');
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
     // Generate unique filename
     const timestamp = Date.now();
     const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const uniqueFileName = `${timestamp}_${sanitizedFileName}`;
-    const filePath = join(uploadDir, uniqueFileName);
+    const uniqueFileName = `investor-documents/${timestamp}_${sanitizedFileName}`;
 
-    // Save file to disk
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
+    // Upload to Vercel Blob
+    const blob = await put(uniqueFileName, file, {
+      access: 'public',
+      addRandomSuffix: false,
+    });
 
     // Save to database
     const document = await db.investorDocument.create({
       data: {
         name: file.name,
-        fileName: uniqueFileName,
-        filePath: `/uploads/documents/${uniqueFileName}`,
+        fileName: sanitizedFileName,
+        filePath: blob.url,
         fileSize: file.size,
-        mimeType: file.type
+        mimeType: file.type || (isMarkdown ? 'text/markdown' : 'application/pdf')
       }
     });
 

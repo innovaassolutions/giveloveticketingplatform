@@ -17,6 +17,7 @@
     "@paper-design/shaders-react": "^0.0.54",
     "@prisma/client": "^6.16.2",
     "@tailwindcss/typography": "^0.5.19",
+    "@vercel/blob": "^2.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
